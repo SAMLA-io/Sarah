@@ -2,9 +2,44 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
+	"time"
+
+	vapiclient "github.com/VapiAI/server-sdk-go/client"
+	"github.com/VapiAI/server-sdk-go/option"
 )
+
+// ClientFactory creates a new VAPI client with the given API key
+func createClient(apiKey string) *vapiclient.Client {
+	return vapiclient.NewClient(
+		option.WithToken(apiKey),
+		option.WithHTTPClient(
+			&http.Client{
+				Timeout: 30 * time.Second,
+			}),
+	)
+}
+
+// getClientFromRequest creates a client using the API key from the request
+func GetClientFromRequest(r *http.Request) (*vapiclient.Client, error) {
+	apiKey := ExtractAuthHeader(r)
+	if apiKey == "" {
+		// Fallback to environment variable for backward compatibility
+		apiKey = os.Getenv("VAPI_API_KEY")
+		if apiKey == "" {
+			return nil, fmt.Errorf("no API key provided in Authorization header or VAPI_API_KEY environment variable")
+		}
+	}
+	return createClient(apiKey), nil
+}
+
+func ExtractAuthHeader(r *http.Request) string {
+	authHeader := r.Header.Get("Authorization")
+	return strings.TrimPrefix(authHeader, "Bearer ")
+}
 
 func ExtractPhoneNumbers(r *http.Request) []string {
 	var phoneNumbers []string
