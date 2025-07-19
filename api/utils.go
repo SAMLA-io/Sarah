@@ -68,7 +68,7 @@ func VerifyMethod(r *http.Request, allowedMethods []string) bool {
 }
 
 func ExtractCallId(r *http.Request) string {
-	path := strings.TrimPrefix(r.URL.Path, "/calls/")
+	path := strings.TrimPrefix(r.URL.Path, "/calls/call/")
 	return strings.TrimSpace(path)
 }
 
@@ -86,11 +86,13 @@ func ExtractCallListRequest(r *http.Request) *api.CallsListRequest {
 }
 
 func ExtractCampaignId(r *http.Request) string {
-	campaignId := r.URL.Query().Get("campaignId")
+	path := strings.TrimPrefix(r.URL.Path, "/campaigns/campaign/")
+	campaignId := strings.TrimSpace(path)
 	return strings.TrimSpace(campaignId)
 }
 
 func ExtractOrgId(r *http.Request) string {
-	orgId := r.URL.Query().Get("orgId")
+	path := strings.TrimPrefix(r.URL.Path, "/campaigns/org/")
+	orgId := strings.TrimSpace(path)
 	return strings.TrimSpace(orgId)
 }
