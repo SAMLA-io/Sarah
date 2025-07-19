@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var client *vapiclient.Client
+var Client *vapiclient.Client
 
 func init() {
 	err := godotenv.Load()
@@ -22,7 +23,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	client = vapiclient.NewClient(
+	Client = vapiclient.NewClient(
 		option.WithToken(os.Getenv("VAPI_API_KEY")),
 		option.WithHTTPClient(
 			&http.Client{
@@ -32,8 +33,7 @@ func init() {
 }
 
 func CreateCall(w http.ResponseWriter, r *http.Request) {
-	// Only allow POST requests
-	if r.Method != http.MethodPost {
+	if !VerifyMethod(r, []string{"POST"}) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -50,20 +50,64 @@ func CreateCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(customerList) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "No phone numbers provided", http.StatusBadRequest)
+		return
 	}
 
-	resp, err := client.Calls.Create(context.Background(), &api.CreateCallDto{
+	resp, err := Client.Calls.Create(context.Background(), &api.CreateCallDto{
 		AssistantId:   api.String(assistantId),
 		PhoneNumberId: api.String(assistantNumberId),
 		Customers:     customerList,
 	})
 
 	if err != nil {
-		log.Fatalf("Error creating call: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Error creating call: %v", err)
+		http.Error(w, "Failed to create call", http.StatusInternalServerError)
+		return
 	}
 
 	fmt.Printf("Call created successfully: %+v\n", resp)
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(resp)
+}
+
+func GetCall(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"GET"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	callId := ExtractCallId(r)
+
+	resp, err := Client.Calls.Get(context.Background(), callId)
+
+	if err != nil {
+		log.Printf("Error getting call: %v", err)
+		http.Error(w, "Failed to get call", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("Call retrieved successfully: %+v\n", resp)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
+}
+
+func ListCalls(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"GET"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	calls, err := Client.Calls.List(context.Background(), &api.CallsListRequest{
+		AssistantId: api.String(ExtractAssistantId(r)),
+	})
+
+	if err != nil {
+		log.Printf("Error listing calls: %v", err)
+		http.Error(w, "Failed to list calls", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(calls)
 }
