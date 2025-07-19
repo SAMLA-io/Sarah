@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var Client *vapiclient.Client
+var VapiClient *vapiclient.Client
 
 func init() {
 	err := godotenv.Load()
@@ -21,7 +21,7 @@ func init() {
 		log.Printf("Warning: Error loading .env file: %v", err)
 	}
 
-	Client = createClient(os.Getenv("VAPI_API_KEY"))
+	VapiClient = createClient(os.Getenv("VAPI_API_KEY"))
 }
 
 func CreateCall(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +46,7 @@ func CreateCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := Client.Calls.Create(context.Background(), &api.CreateCallDto{
+	resp, err := VapiClient.Calls.Create(context.Background(), &api.CreateCallDto{
 		AssistantId:   api.String(assistantId),
 		PhoneNumberId: api.String(assistantNumberId),
 		Customers:     customerList,
@@ -71,7 +71,7 @@ func GetCall(w http.ResponseWriter, r *http.Request) {
 
 	callId := ExtractCallId(r)
 
-	resp, err := Client.Calls.Get(context.Background(), callId)
+	resp, err := VapiClient.Calls.Get(context.Background(), callId)
 
 	if err != nil {
 		log.Printf("Error getting call: %v", err)
@@ -92,7 +92,7 @@ func ListCalls(w http.ResponseWriter, r *http.Request) {
 
 	callListRequest := ExtractCallListRequest(r)
 
-	calls, err := Client.Calls.List(context.Background(), callListRequest)
+	calls, err := VapiClient.Calls.List(context.Background(), callListRequest)
 
 	if err != nil {
 		log.Printf("Error listing calls: %v", err)
