@@ -9,7 +9,6 @@ import (
 func ExtractPhoneNumbers(r *http.Request) []string {
 	var phoneNumbers []string
 
-	// Parse the JSON body
 	type requestBody struct {
 		PhoneNumbers []string `json:"phoneNumbers"`
 	}
@@ -21,7 +20,6 @@ func ExtractPhoneNumbers(r *http.Request) []string {
 		return []string{}
 	}
 
-	// Trim whitespace and filter out empty strings
 	for _, phone := range body.PhoneNumbers {
 		phoneNumbers = append(phoneNumbers, strings.TrimSpace(phone))
 	}
@@ -37,4 +35,18 @@ func ExtractAssistantId(r *http.Request) string {
 func ExtractAssistantNumberId(r *http.Request) string {
 	assistantNumberId := r.URL.Query().Get("assistantNumberId")
 	return strings.TrimSpace(assistantNumberId)
+}
+
+func VerifyMethod(r *http.Request, allowedMethods []string) bool {
+	for _, method := range allowedMethods {
+		if r.Method == strings.ToUpper(method) {
+			return true
+		}
+	}
+	return false
+}
+
+func ExtractCallId(r *http.Request) string {
+	path := strings.TrimPrefix(r.URL.Path, "/calls/")
+	return strings.TrimSpace(path)
 }
