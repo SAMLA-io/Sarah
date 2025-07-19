@@ -6,28 +6,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	api "github.com/VapiAI/server-sdk-go"
+	vapiclient "github.com/VapiAI/server-sdk-go/client"
 	"github.com/joho/godotenv"
 )
+
+var Client *vapiclient.Client
 
 func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("Warning: Error loading .env file: %v", err)
 	}
+
+	Client = createClient(os.Getenv("VAPI_API_KEY"))
 }
 
 func CreateCall(w http.ResponseWriter, r *http.Request) {
 	if !VerifyMethod(r, []string{"POST"}) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	client, err := GetClientFromRequest(r)
-	if err != nil {
-		log.Printf("Error creating client: %v", err)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -47,7 +46,7 @@ func CreateCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := client.Calls.Create(context.Background(), &api.CreateCallDto{
+	resp, err := Client.Calls.Create(context.Background(), &api.CreateCallDto{
 		AssistantId:   api.String(assistantId),
 		PhoneNumberId: api.String(assistantNumberId),
 		Customers:     customerList,
@@ -70,16 +69,9 @@ func GetCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := GetClientFromRequest(r)
-	if err != nil {
-		log.Printf("Error creating client: %v", err)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
 	callId := ExtractCallId(r)
 
-	resp, err := client.Calls.Get(context.Background(), callId)
+	resp, err := Client.Calls.Get(context.Background(), callId)
 
 	if err != nil {
 		log.Printf("Error getting call: %v", err)
@@ -98,16 +90,9 @@ func ListCalls(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client, err := GetClientFromRequest(r)
-	if err != nil {
-		log.Printf("Error creating client: %v", err)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	callListRequest := ExtractCallListRequest(r)
 
-	calls, err := client.Calls.List(context.Background(), &api.CallsListRequest{
-		AssistantId: api.String(ExtractAssistantId(r)),
-	})
+	calls, err := Client.Calls.List(context.Background(), callListRequest)
 
 	if err != nil {
 		log.Printf("Error listing calls: %v", err)

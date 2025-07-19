@@ -2,17 +2,16 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
+	api "github.com/VapiAI/server-sdk-go"
 	vapiclient "github.com/VapiAI/server-sdk-go/client"
 	"github.com/VapiAI/server-sdk-go/option"
 )
 
-// ClientFactory creates a new VAPI client with the given API key
 func createClient(apiKey string) *vapiclient.Client {
 	return vapiclient.NewClient(
 		option.WithToken(apiKey),
@@ -21,19 +20,6 @@ func createClient(apiKey string) *vapiclient.Client {
 				Timeout: 30 * time.Second,
 			}),
 	)
-}
-
-// getClientFromRequest creates a client using the API key from the request
-func GetClientFromRequest(r *http.Request) (*vapiclient.Client, error) {
-	apiKey := ExtractAuthHeader(r)
-	if apiKey == "" {
-		// Fallback to environment variable for backward compatibility
-		apiKey = os.Getenv("VAPI_API_KEY")
-		if apiKey == "" {
-			return nil, fmt.Errorf("no API key provided in Authorization header or VAPI_API_KEY environment variable")
-		}
-	}
-	return createClient(apiKey), nil
 }
 
 func ExtractAuthHeader(r *http.Request) string {
@@ -84,4 +70,27 @@ func VerifyMethod(r *http.Request, allowedMethods []string) bool {
 func ExtractCallId(r *http.Request) string {
 	path := strings.TrimPrefix(r.URL.Path, "/calls/")
 	return strings.TrimSpace(path)
+}
+
+func ExtractCallListRequest(r *http.Request) *api.CallsListRequest {
+	body, err := io.ReadAll(r.Body)
+	bodyMap := make(map[string]interface{})
+	json.Unmarshal(body, &bodyMap)
+	if err != nil {
+		return nil
+	}
+
+	var callListRequest api.CallsListRequest
+	json.Unmarshal(bodyMap["callListRequest"].([]byte), &callListRequest)
+	return &callListRequest
+}
+
+func ExtractCampaignId(r *http.Request) string {
+	campaignId := r.URL.Query().Get("campaignId")
+	return strings.TrimSpace(campaignId)
+}
+
+func ExtractOrgId(r *http.Request) string {
+	orgId := r.URL.Query().Get("orgId")
+	return strings.TrimSpace(orgId)
 }
