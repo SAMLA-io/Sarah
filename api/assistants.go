@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"sarah/supabase"
+	"sarah/mongodb"
 )
 
 func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
@@ -13,7 +13,7 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 	}
 
 	orgID := ExtractOrgId(r)
-	assistants := supabase.GetAssistantByOrgId(orgID)
+	assistants := mongodb.GetOrganizationAssistants(orgID)
 
 	json.NewEncoder(w).Encode(assistants)
 }

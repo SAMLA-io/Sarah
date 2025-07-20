@@ -1,19 +1,40 @@
+// package main
+
+// import (
+// 	"log"
+// 	"net/http"
+// 	"sarah/api"
+// )
+
+// func main() {
+// 	http.HandleFunc("/calls/create", api.CreateCall)
+// 	http.HandleFunc("/calls/list", api.ListCalls)
+// 	http.HandleFunc("/calls/call/", api.GetCall)
+
+// 	http.HandleFunc("/campaigns/create", api.CreateCampaign)
+// 	http.HandleFunc("/campaigns/org/", api.GetCampaignViaOrgID)
+// 	http.HandleFunc("/campaigns/campaign/", api.GetCampaignViaCampaignID)
+
+// 	log.Fatal(http.ListenAndServe(":8080", nil))
+// }
+
 package main
 
 import (
-	"log"
-	"net/http"
-	"sarah/api"
+	"fmt"
+	mongo "sarah/mongodb"
 )
 
 func main() {
-	http.HandleFunc("/calls/create", api.CreateCall)
-	http.HandleFunc("/calls/list", api.ListCalls)
-	http.HandleFunc("/calls/call/", api.GetCall)
+	orgId := "org_2zvQt8zx3QQdJPGVHYmqBajnnK1"
 
-	http.HandleFunc("/campaigns/create", api.CreateCampaign)
-	http.HandleFunc("/campaigns/org/", api.GetCampaignViaOrgID)
-	http.HandleFunc("/campaigns/campaign/", api.GetCampaignViaCampaignID)
+	campaigns := mongo.GetCampaignByOrgId(orgId)
+	contacts := mongo.GetContactByOrgId(orgId)
+	assistants := mongo.GetOrganizationAssistants(orgId)
+	phoneNumbers := mongo.GetPhoneNumberByOrgId(orgId)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println(campaigns)
+	fmt.Println(contacts)
+	fmt.Println(assistants)
+	fmt.Println(phoneNumbers)
 }

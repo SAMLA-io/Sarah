@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"sarah/supabase"
+	"sarah/mongodb"
 
 	api "github.com/VapiAI/server-sdk-go"
 )
@@ -43,11 +43,11 @@ func GetCampaignViaOrgID(w http.ResponseWriter, r *http.Request) {
 
 	orgId := ExtractOrgId(r)
 
-	campaigns := supabase.GetCampaignByOrgId(orgId)
+	campaigns := mongodb.GetCampaignByOrgId(orgId)
 
 	var vapiCampaigns []api.Campaign
 	for _, campaign := range campaigns {
-		campaign, err := VapiClient.Campaigns.CampaignControllerFindOne(context.Background(), campaign.VapiCampaignId)
+		campaign, err := VapiClient.Campaigns.CampaignControllerFindOne(context.Background(), campaign.VapiId)
 		if err != nil {
 			http.Error(w, "Failed to get campaign", http.StatusInternalServerError)
 			return

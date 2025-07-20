@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sarah/supabase"
+	"sarah/mongodb"
 	"sort"
 
 	api "github.com/VapiAI/server-sdk-go"
@@ -114,7 +114,7 @@ func GetCallListByOrgId(w http.ResponseWriter, r *http.Request) {
 
 	orgID := ExtractOrgId(r)
 
-	assistants := supabase.GetAssistantByOrgId(orgID)
+	assistants := mongodb.GetOrganizationAssistants(orgID)
 
 	calls := []*api.Call{}
 	for _, assistant := range assistants {
