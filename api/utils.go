@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"sarah/types/mongodb"
 	"strings"
 	"time"
 
@@ -95,4 +96,17 @@ func ExtractOrgId(r *http.Request) string {
 	path := strings.TrimPrefix(r.URL.Path, "/campaigns/org/")
 	orgId := strings.TrimSpace(path)
 	return strings.TrimSpace(orgId)
+}
+
+func ExtractCampaignCreateDto(r *http.Request) *mongodb.CampaignCreateDto {
+	body, err := io.ReadAll(r.Body)
+	bodyMap := make(map[string]interface{})
+	json.Unmarshal(body, &bodyMap)
+	if err != nil {
+		return nil
+	}
+
+	var campaignCreateDto mongodb.CampaignCreateDto
+	json.Unmarshal(bodyMap["campaignCreateRequest"].([]byte), &campaignCreateDto)
+	return &campaignCreateDto
 }

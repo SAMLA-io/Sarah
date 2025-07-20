@@ -50,3 +50,14 @@ func GetCampaignByOrgId(orgId string) []mongodb.Campaign {
 
 	return campaigns
 }
+
+func CreateCampaign(orgId string, campaign mongodb.Campaign) *mongo.InsertOneResult {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
+
+	result, err := coll.InsertOne(context.Background(), campaign)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}
