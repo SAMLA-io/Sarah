@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sarah/supabase"
+	"sort"
 
 	api "github.com/VapiAI/server-sdk-go"
 	vapiclient "github.com/VapiAI/server-sdk-go/client"
@@ -99,6 +101,37 @@ func ListCalls(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to list calls", http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(calls)
+}
+
+func GetCallListByOrgId(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"GET"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	orgID := ExtractOrgId(r)
+
+	assistants := supabase.GetAssistantByOrgId(orgID)
+
+	calls := []*api.Call{}
+	for _, assistant := range assistants {
+		assistantCalls, err := VapiClient.Calls.List(context.Background(), &api.CallsListRequest{
+			AssistantId: api.String(assistant.VapiAssistantId),
+		})
+		if err != nil {
+			log.Printf("Error listing calls: %v", err)
+			http.Error(w, "Failed to list calls", http.StatusInternalServerError)
+			return
+		}
+		calls = append(calls, assistantCalls...)
+	}
+
+	sort.Slice(calls, func(i, j int) bool {
+		return calls[i].CreatedAt.After(calls[j].CreatedAt)
+	})
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(calls)
