@@ -69,20 +69,30 @@ func VerifyMethod(r *http.Request, allowedMethods []string) bool {
 }
 
 func ExtractCallId(r *http.Request) string {
-	path := strings.TrimPrefix(r.URL.Path, "/calls/call/")
-	return strings.TrimSpace(path)
+	callId := r.URL.Query().Get("callId")
+	return strings.TrimSpace(callId)
 }
 
 func ExtractCallListRequest(r *http.Request) *api.CallsListRequest {
 	body, err := io.ReadAll(r.Body)
-	bodyMap := make(map[string]interface{})
-	json.Unmarshal(body, &bodyMap)
 	if err != nil {
 		return nil
 	}
 
+	var bodyMap map[string]json.RawMessage
+	if err := json.Unmarshal(body, &bodyMap); err != nil {
+		return nil
+	}
+
+	raw, ok := bodyMap["callListRequest"]
+	if !ok || raw == nil {
+		return nil
+	}
+
 	var callListRequest api.CallsListRequest
-	json.Unmarshal(bodyMap["callListRequest"].([]byte), &callListRequest)
+	if err := json.Unmarshal(raw, &callListRequest); err != nil {
+		return nil
+	}
 	return &callListRequest
 }
 
