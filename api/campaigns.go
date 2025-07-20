@@ -7,8 +7,6 @@ import (
 	"sarah/mongodb"
 
 	mongodbTypes "sarah/types/mongodb"
-
-	api "github.com/VapiAI/server-sdk-go"
 )
 
 type Campaign = mongodbTypes.Campaign
@@ -20,32 +18,21 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	}
 
 	campaignCreateDto := ExtractCampaignCreateDto(r)
-
-	customers := []*api.CreateCustomerDto{}
-	for _, customer := range campaignCreateDto.Customers {
-		customers = append(customers, &api.CreateCustomerDto{
-			Number: api.String(customer.Number),
-		})
-	}
-
-	campaign, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
-		Name:          campaignCreateDto.Name,
-		AssistantId:   &campaignCreateDto.AssistantId,
-		PhoneNumberId: campaignCreateDto.PhoneNumberId,
-		Customers:     customers,
-	})
-
 	orgId := ExtractOrgId(r)
 
-	mongodb.CreateCampaign(orgId, Campaign{
-		VapiId: campaign.Id,
-		Type:   string(campaign.Status),
+	// Adds the campaign to the database
+	campaign := mongodb.CreateCampaign(orgId, Campaign{
+		Name:          campaignCreateDto.Name,
+		AssistantId:   campaignCreateDto.AssistantId,
+		PhoneNumberId: campaignCreateDto.PhoneNumberId,
+		SchedulePlan:  campaignCreateDto.SchedulePlan,
+		Customers:     campaignCreateDto.Customers,
+		Type:          campaignCreateDto.Type,
+		Status:        campaignCreateDto.Status,
+		StartDate:     campaignCreateDto.StartDate,
+		EndDate:       campaignCreateDto.EndDate,
+		TimeZone:      campaignCreateDto.TimeZone,
 	})
-
-	if err != nil {
-		http.Error(w, "Failed to create campaign", http.StatusInternalServerError)
-		return
-	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(campaign)
@@ -79,17 +66,6 @@ func GetCampaignViaOrgID(w http.ResponseWriter, r *http.Request) {
 
 	campaigns := mongodb.GetCampaignByOrgId(orgId)
 
-	var vapiCampaigns []api.Campaign
-	for _, campaign := range campaigns {
-		campaign, err := VapiClient.Campaigns.CampaignControllerFindOne(context.Background(), campaign.VapiId)
-		if err != nil {
-			http.Error(w, "Failed to get campaign", http.StatusInternalServerError)
-			return
-		}
-
-		vapiCampaigns = append(vapiCampaigns, *campaign)
-	}
-
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(vapiCampaigns)
+	json.NewEncoder(w).Encode(campaigns)
 }
