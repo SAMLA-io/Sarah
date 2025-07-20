@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"sarah/mongodb"
@@ -33,24 +32,6 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 		EndDate:       campaignCreateDto.EndDate,
 		TimeZone:      campaignCreateDto.TimeZone,
 	})
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(campaign)
-}
-
-func GetCampaignViaCampaignID(w http.ResponseWriter, r *http.Request) {
-	if !VerifyMethod(r, []string{"GET"}) {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	campaignId := ExtractCampaignId(r)
-
-	campaign, err := VapiClient.Campaigns.CampaignControllerFindOne(context.Background(), campaignId)
-	if err != nil {
-		http.Error(w, "Failed to get campaign", http.StatusInternalServerError)
-		return
-	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(campaign)

@@ -93,20 +93,24 @@ func ExtractCampaignId(r *http.Request) string {
 }
 
 func ExtractOrgId(r *http.Request) string {
-	path := strings.TrimPrefix(r.URL.Path, "/campaigns/org/")
-	orgId := strings.TrimSpace(path)
+	orgId := r.URL.Query().Get("orgId")
 	return strings.TrimSpace(orgId)
 }
 
 func ExtractCampaignCreateDto(r *http.Request) *mongodb.CampaignCreateDto {
 	body, err := io.ReadAll(r.Body)
-	bodyMap := make(map[string]interface{})
-	json.Unmarshal(body, &bodyMap)
 	if err != nil {
 		return nil
 	}
 
-	var campaignCreateDto mongodb.CampaignCreateDto
-	json.Unmarshal(bodyMap["campaignCreateRequest"].([]byte), &campaignCreateDto)
-	return &campaignCreateDto
+	var requestBody struct {
+		CampaignCreateRequest mongodb.CampaignCreateDto `json:"campaignCreateRequest"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.CampaignCreateRequest
 }
