@@ -1,10 +1,10 @@
-# Sarah Campaign Management API
+# Sarah AI Call assistant
 
-A comprehensive backend service for managing automated calling campaigns using VapiAI for voice interactions and MongoDB for data persistence.
+A comprehensive backend service for managing automated calling assistant using VapiAI for voice interactions and MongoDB for data persistence.
 
 ## Overview
 
-The Sarah Campaign Management API is designed to handle automated calling campaigns with flexible scheduling, customer management, and integration with VapiAI's voice AI platform. The system supports various campaign types including weekly, monthly, and yearly recurrences, with sophisticated scheduling based on customer-specific dates like insurance renewals.
+The Sarah AI Call assistant is designed to handle automated calling assistant with flexible scheduling, customer management, and integration with VapiAI's voice AI platform. The system supports various campaign types including weekly, monthly, and yearly recurrences, with sophisticated scheduling based on customer-specific dates like insurance renewals. Additionally, you can create single calls and other behaviors from the VapiAI API.
 
 Given the nature of the project, we are using a MongoDB database to store the data. Additionally, VapiAI's native campaigns do not support the ability to schedule calls for a specific date. Therefore, we are using our own campaign management system to schedule calls. If the campaign is a one-time campaign, we will still use our own campaign management system to schedule the call, as to maintain a single campaign management system.
 
