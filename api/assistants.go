@@ -2,9 +2,24 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 	"sarah/mongodb"
+
+	vapiclient "github.com/VapiAI/server-sdk-go/client"
+	"github.com/joho/godotenv"
 )
+
+var VapiClient *vapiclient.Client
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found, using system environment variables")
+	}
+
+	VapiClient = createClient(os.Getenv("VAPI_API_KEY"))
+}
 
 // GetOrganizationAssistants handles GET requests to retrieve all assistants for an organization.
 // This endpoint returns all VapiAI assistants that belong to the specified organization.

@@ -6,25 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"sarah/mongodb"
 	"sort"
 
 	api "github.com/VapiAI/server-sdk-go"
-	vapiclient "github.com/VapiAI/server-sdk-go/client"
-	"github.com/joho/godotenv"
 )
-
-var VapiClient *vapiclient.Client
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("Warning: Error loading .env file: %v", err)
-	}
-
-	VapiClient = createClient(os.Getenv("VAPI_API_KEY"))
-}
 
 // CreateCall handles POST requests to create a new call using VapiAI.
 // This endpoint creates outbound calls to multiple phone numbers using a specified assistant.

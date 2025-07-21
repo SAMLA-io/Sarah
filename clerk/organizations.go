@@ -9,11 +9,15 @@ import (
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/clerk/clerk-sdk-go/v2/organization"
 	"github.com/clerk/clerk-sdk-go/v2/user"
+	"github.com/joho/godotenv"
 )
 
 func init() {
-	clerkAPIKey := os.Getenv("CLERK_SECRET_KEY")
-	clerk.SetKey(clerkAPIKey)
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found, using system environment variables")
+	}
+
+	clerk.SetKey(os.Getenv("CLERK_SECRET_KEY"))
 }
 
 func GetUserOrganizations(userId string) (*clerk.OrganizationMembershipList, error) {
