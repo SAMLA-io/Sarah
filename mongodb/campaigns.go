@@ -66,7 +66,7 @@ func CreateCampaign(orgId string, campaign mongodb.Campaign) *mongo.InsertOneRes
 
 	result, err := coll.InsertOne(context.Background(), campaign)
 	if err != nil {
-		log.Fatal(err)
+		return nil
 	}
 
 	return result

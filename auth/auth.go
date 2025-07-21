@@ -50,7 +50,7 @@ func VerifyingMiddleware(next http.Handler) http.Handler {
 }
 
 // USED ONLY FOR TESTING
-func TestVerifyingMiddleware(next http.Handler) http.Handler {
+func TestingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[API] Request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
 		startTime := time.Now()

@@ -5,32 +5,11 @@ import (
 	"io"
 	"net/http"
 	"sarah/auth"
-	"sarah/types/mongodb"
+	mongodbTypes "sarah/types/mongodb"
 	"strings"
-	"time"
 
 	api "github.com/VapiAI/server-sdk-go"
-	vapiclient "github.com/VapiAI/server-sdk-go/client"
-	"github.com/VapiAI/server-sdk-go/option"
 )
-
-// createClient initializes and returns a new VapiAI client with the provided API key.
-// The client is configured with a 30-second timeout for HTTP requests.
-//
-// Parameters:
-//   - apiKey: The VapiAI API key for authentication
-//
-// Returns:
-//   - *vapiclient.Client: Configured VapiAI client instance
-func createClient(apiKey string) *vapiclient.Client {
-	return vapiclient.NewClient(
-		option.WithToken(apiKey),
-		option.WithHTTPClient(
-			&http.Client{
-				Timeout: 30 * time.Second,
-			}),
-	)
-}
 
 // ExtractAuthHeader extracts the Bearer token from the Authorization header.
 // This function removes the "Bearer " prefix from the Authorization header value.
@@ -254,14 +233,14 @@ func ExtractOrgId(r *http.Request) string {
 //	    "timezone": "America/New_York"
 //	  }
 //	}
-func ExtractCampaignCreateDto(r *http.Request) *mongodb.CampaignCreateDto {
+func ExtractCampaignCreateDto(r *http.Request) *mongodbTypes.Campaign {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil
 	}
 
 	var requestBody struct {
-		CampaignCreateRequest mongodb.CampaignCreateDto `json:"campaignCreateRequest"`
+		CampaignCreateRequest mongodbTypes.Campaign `json:"campaignCreateRequest"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
