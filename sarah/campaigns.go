@@ -1,0 +1,4 @@
+package sarah
+
+func init() {
+}
