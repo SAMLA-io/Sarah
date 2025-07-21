@@ -6,34 +6,9 @@ import (
 	"os"
 	"sarah/types/mongodb"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
-
-var Client *mongo.Client
-
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not found, using system environment variables")
-	}
-
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI(os.Getenv("MONGO_URI")).SetServerAPIOptions(serverAPI)
-
-	var err error
-	Client, err = mongo.Connect(opts)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := Client.Ping(context.TODO(), readpref.Primary()); err != nil {
-		panic(err)
-	}
-	log.Println("Pinged deployment. Successfully connected to MongoDB!")
-}
 
 // GetCampaignByOrgId retrieves all campaigns for a specific organization from the database.
 // This function queries the campaigns collection in the organization's database
