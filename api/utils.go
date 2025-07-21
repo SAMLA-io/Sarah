@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"sarah/auth"
 	"sarah/types/mongodb"
 	"strings"
 	"time"
@@ -220,7 +221,10 @@ func ExtractCampaignId(r *http.Request) string {
 //
 // Example URL: /campaigns/org?orgId=org_1234567890abcdef
 func ExtractOrgId(r *http.Request) string {
-	orgId := r.URL.Query().Get("orgId")
+	orgId, ok := auth.GetOrganizationID(r)
+	if !ok {
+		return ""
+	}
 	return strings.TrimSpace(orgId)
 }
 
