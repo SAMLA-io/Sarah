@@ -67,7 +67,7 @@ func TestingMiddleware(next http.Handler) http.Handler {
 		// 	return
 		// }
 
-		organizationID := "org_2zvQt8zx3QQdJPGVHYmqBajnnK1"
+		organizationID := "org_1234567890"
 
 		// Add organization ID to request context
 		ctx := context.WithValue(r.Context(), OrganizationIDKey{}, organizationID)
