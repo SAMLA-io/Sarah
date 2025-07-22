@@ -76,22 +76,22 @@ func (c *CampaignScheduler) run() {
 			panic(err)
 		}
 
-		fmt.Printf("Retrieved %d organizations:\n", len(allOrgIDs))
+		fmt.Printf("[CampaignScheduler] Retrieved %d organizations:\n", len(allOrgIDs))
 
 		for _, id := range allOrgIDs {
 			campaigns := mongodb.GetCampaignByOrgId(id)
-			fmt.Printf("Retrieved %d campaigns for organization %s:\n", len(campaigns), id)
+			fmt.Printf("[CampaignScheduler] Retrieved %d campaigns for organization %s:\n", len(campaigns), id)
 
 			for _, campaign := range campaigns {
 				if campaign.Status == mongodbTypes.STATUS_ACTIVE {
-					fmt.Printf("Campaign: %s\n", campaign.Name)
+					fmt.Printf("[CampaignScheduler] Campaign: %s\n", campaign.Name)
 					CheckCampaign(campaign)
 				}
 			}
 
 		}
 
-		time.Sleep(1 * time.Minute)
+		time.Sleep(1 * time.Hour)
 	}
 }
 
@@ -111,7 +111,7 @@ func CheckCampaign(campaign mongodbTypes.Campaign) {
 	case mongodbTypes.ONE_TIME:
 		CheckOneTimeCampaign(campaign)
 	default:
-		fmt.Printf("Campaign type %s not supported\n", campaignType)
+		fmt.Printf("[CampaignScheduler] Campaign type %s not supported\n", campaignType)
 	}
 }
 
@@ -302,7 +302,7 @@ func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) {
 }
 
 func CheckOneTimeCampaign(campaign mongodbTypes.Campaign) {
-	fmt.Printf("Checking one-time campaign: %s\n", campaign.Name)
+	fmt.Printf("[CampaignScheduler] Checking one-time campaign: %s\n", campaign.Name)
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
@@ -331,7 +331,7 @@ func CheckOneTimeCampaign(campaign mongodbTypes.Campaign) {
 		return
 	}
 
-	fmt.Printf("Campaign created: %+v\n", resp)
+	fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
 }
 
 // Creates an immediate campaign in Vapi
@@ -347,10 +347,10 @@ func executeCampaign(request api.CreateCampaignDto) *api.Campaign {
 		},
 	})
 	if err != nil {
-		log.Printf("Error creating campaign: %v", err)
+		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
 		return nil
 	}
 
-	fmt.Printf("Campaign created: %+v\n", resp)
+	fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
 	return resp
 }
