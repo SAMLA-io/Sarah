@@ -12,7 +12,7 @@ func main() {
 	campaignScheduler := sarah.CampaignScheduler{}
 	campaignScheduler.Start()
 
-	http.HandleFunc("/test", test)
+	http.HandleFunc("/", welcome)
 
 	// Call management endpoints
 	http.Handle("/calls/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateCall)))      // POST: Create a new call
@@ -35,7 +35,7 @@ func main() {
 
 }
 
-func test(w http.ResponseWriter, r *http.Request) {
+func welcome(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello, World!"))
+	w.Write([]byte("Welcome to Sarah AI Call Assistant!"))
 }
