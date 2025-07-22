@@ -505,16 +505,8 @@ Sarah/
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## Contributing
+## Contributors
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## Support
-
-For support and questions, please contact the development team or create an issue in the repository.
+- [@jpgtzg](https://github.com/jpgtzg)
