@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	clerk "sarah/clerk"
@@ -52,8 +53,7 @@ func CreateCampaign(campaignCreateDto mongodbTypes.Campaign, orgId string) *mong
 // if it is, create the one-time campaign in Vapi with the phone nombers
 // from the mongodb campaign
 
-type CampaignScheduler struct {
-}
+type CampaignScheduler struct{}
 
 func (c *CampaignScheduler) Start() {
 	go func() {
@@ -62,12 +62,11 @@ func (c *CampaignScheduler) Start() {
 }
 
 func (c *CampaignScheduler) Stop() {
-
+	os.Exit(0)
 }
 
 func (c *CampaignScheduler) run() {
 	for {
-		start := time.Now()
 		if err := godotenv.Load(); err != nil {
 			log.Printf("Warning: .env file not found, using system environment variables")
 		}
@@ -91,9 +90,6 @@ func (c *CampaignScheduler) run() {
 			}
 
 		}
-
-		elapsed := time.Since(start)
-		fmt.Printf("Time taken: %s\n", elapsed)
 
 		time.Sleep(1 * time.Minute)
 	}
