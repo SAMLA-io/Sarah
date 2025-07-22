@@ -1,6 +1,6 @@
 # Sarah AI Call assistant
 
-A comprehensive backend service for managing automated calling assistant using VapiAI for voice interactions and MongoDB for data persistence.
+A comprehensive backend service for managing automated calling assistant using VapiAI for voice interactions and MongoDB for data persistence, with Clerk authentication and organization-based multi-tenancy.
 
 ## Overview
 
@@ -14,8 +14,9 @@ Given the nature of the project, we are using a MongoDB database to store the da
 - **Flexible Scheduling**: Support for weekly, monthly, yearly, and one-time campaigns
 - **Customer Management**: Store and manage customer contact information
 - **VapiAI Integration**: Seamless integration with VapiAI for voice interactions
-- **Organization-based Architecture**: Multi-tenant design with organization isolation
+- **Organization-based Architecture**: Multi-tenant design with Clerk authentication and organization isolation
 - **MongoDB Persistence**: Scalable data storage with MongoDB
+- **Authentication & Authorization**: Secure access control using Clerk
 
 ## Architecture
 
@@ -30,6 +31,12 @@ Given the nature of the project, we are using a MongoDB database to store the da
                        │   VapiAI API    │
                        │   (Voice AI)    │
                        └─────────────────┘
+                              │
+                              ▼
+                       ┌─────────────────┐
+                       │   Clerk Auth    │
+                       │   (Identity)    │
+                       └─────────────────┘
 ```
 
 ## Prerequisites
@@ -37,6 +44,7 @@ Given the nature of the project, we are using a MongoDB database to store the da
 - Go 1.24.4 or higher
 - MongoDB instance
 - VapiAI account and API key
+- Clerk account and API key
 
 ## Installation
 
@@ -62,6 +70,9 @@ MONGO_COLLECTION_PHONE_NUMBERS=phone_numbers
 
 # VapiAI Configuration
 VAPI_API_KEY=your_vapi_api_key_here
+
+# Clerk Configuration
+CLERK_SECRET_KEY=your_clerk_secret_key_here
 ```
 
 4. Run the application:
@@ -88,8 +99,8 @@ Simple health check endpoint.
 #### POST /campaigns/create
 Create a new campaign.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Request Body:**
 ```json
@@ -100,19 +111,14 @@ Create a new campaign.
     "phone_number_id": "phone_0987654321fedcba",
     "schedule_plan": {
       "before_day": 3,
-      "after_day": 0,
-      "week_days": [1, 3, 5],
-      "month_days": [],
-      "year_months": []
+      "after_day": 0
     },
     "customers": [
       {
         "phone_number": "+1234567890",
         "day_number": 15,
         "month_number": 3,
-        "week_day": 1,
-        "custom_date": null,
-        "expiry_date": "2024-12-31T23:59:59Z"
+        "year_number": 2024
       }
     ],
     "type": "recurrent_weekly",
@@ -143,8 +149,8 @@ Create a new campaign.
 #### GET /campaigns/org
 Retrieve all campaigns for an organization.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Response:**
 ```json
@@ -168,6 +174,9 @@ Retrieve all campaigns for an organization.
 
 #### POST /calls/create
 Create a new call using VapiAI.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Query Parameters:**
 - `assistantId` (required): VapiAI assistant ID
@@ -194,6 +203,9 @@ Create a new call using VapiAI.
 #### GET /calls/call
 Retrieve a specific call by ID.
 
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
 **Query Parameters:**
 - `callId` (required): VapiAI call ID
 
@@ -213,6 +225,9 @@ Retrieve a specific call by ID.
 #### GET /calls/list
 List calls based on criteria.
 
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
 **Request Body (optional):**
 ```json
 {
@@ -228,25 +243,25 @@ List calls based on criteria.
 #### GET /calls/org
 Retrieve all calls for an organization.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 ### Organization Resources
 
 #### GET /assistants/org
 Retrieve all assistants for an organization.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Response:**
 ```json
 [
   {
-    "id": "asst_1234567890abcdef",
+    "id": "507f1f77bcf86cd799439011",
     "name": "Insurance Reminder Assistant",
-    "vapiAssistantId": "asst_1234567890abcdef",
-    "organizationId": "org_1234567890abcdef"
+    "vapi_assistant_id": "asst_1234567890abcdef",
+    "type": "insurance"
   }
 ]
 ```
@@ -254,18 +269,24 @@ Retrieve all assistants for an organization.
 #### GET /contacts/org
 Retrieve all contacts for an organization.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Response:**
 ```json
 [
   {
-    "id": "contact_1234567890abcdef",
+    "id": "507f1f77bcf86cd799439011",
     "name": "John Doe",
-    "phoneNumber": "+1234567890",
     "email": "john.doe@example.com",
-    "organizationId": "org_1234567890abcdef"
+    "phone_number": "+1234567890",
+    "company": "Acme Corp",
+    "position": "Manager",
+    "address": "123 Main St, City, State",
+    "metadata": {
+      "preferences": "morning_calls",
+      "notes": "Prefers calls before 10 AM"
+    }
   }
 ]
 ```
@@ -273,17 +294,17 @@ Retrieve all contacts for an organization.
 #### GET /phone_numbers/org
 Retrieve all phone numbers for an organization.
 
-**Query Parameters:**
-- `orgId` (required): Organization ID
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
 
 **Response:**
 ```json
 [
   {
-    "id": "phone_0987654321fedcba",
-    "phoneNumber": "+1987654321",
-    "vapiPhoneNumberId": "phone_0987654321fedcba",
-    "organizationId": "org_1234567890abcdef"
+    "id": "507f1f77bcf86cd799439011",
+    "name": "Main Office Line",
+    "phone_number_id": "phone_0987654321fedcba",
+    "phone_number": "+1987654321"
   }
 ]
 ```
@@ -311,29 +332,58 @@ type Campaign struct {
 type SchedulePlan struct {
     BeforeDay  int   // Days before customer's relevant date
     AfterDay   int   // Days after customer's relevant date
-    WeekDays   []int // Allowed days of week (0=Sunday, 1=Monday, etc.)
-    MonthDays  []int // Allowed days of month (1-31)
-    YearMonths []int // Allowed months (1-12)
 }
 ```
 
 ### Customer
 ```go
 type Customer struct {
-    PhoneNumber string     // Customer's phone number (E.164 format)
-    DayNumber   int        // Day of month for scheduling
-    MonthNumber int        // Month for scheduling (1-12)
-    WeekDay     int        // Day of week for scheduling (0-6)
-    CustomDate  *time.Time // One-time specific date
-    ExpiryDate  *time.Time // Insurance/subscription expiry date
+    PhoneNumber string // Customer's phone number (E.164 format)
+    DayNumber   int    // Day of month for scheduling
+    MonthNumber int    // Month for scheduling (1-12)
+    YearNumber  int    // Year for scheduling
+}
+```
+
+### Contact
+```go
+type Contact struct {
+    Id          bson.ObjectID            // Unique MongoDB ObjectID
+    Name        string                   // Full name of the contact
+    Email       string                   // Contact's email address
+    PhoneNumber string                   // Contact's phone number (E.164 format)
+    Company     string                   // Company name
+    Position    string                   // Job title or position
+    Address     string                   // Physical address
+    Metadata    map[string]interface{}   // Flexible field for additional data
+}
+```
+
+### Assistant
+```go
+type Assistant struct {
+    Id              bson.ObjectID // Unique MongoDB ObjectID
+    Name            string        // Human-readable name for the assistant
+    VapiAssistantId string        // Unique identifier in VapiAI
+    Type            string        // Category or purpose of the assistant
+}
+```
+
+### PhoneNumber
+```go
+type PhoneNumber struct {
+    Id            bson.ObjectID // Unique MongoDB ObjectID
+    Name          string        // Human-readable name for the phone number
+    PhoneNumberId string        // Unique identifier in VapiAI
+    PhoneNumber   string        // Actual phone number (E.164 format)
 }
 ```
 
 ## Campaign Types
 
-- `recurrent_weekly`: Runs on specified days of the week
-- `recurrent_monthly`: Runs on specified days of the month
-- `recurrent_yearly`: Runs on specified dates annually
+- `recurrent_weekly`: Runs on a weekly basis
+- `recurrent_monthly`: Runs on a monthly basis
+- `recurrent_yearly`: Runs on a yearly basis
 - `one_time`: Runs only once on a specific date
 
 ## Campaign Statuses
@@ -343,6 +393,16 @@ type Customer struct {
 - `completed`: Campaign has finished all scheduled calls
 - `cancelled`: Campaign has been permanently stopped
 
+## Authentication
+
+The API uses Clerk for authentication and authorization. All endpoints (except `/test`) require a valid JWT token in the Authorization header:
+
+```
+Authorization: Bearer <clerk_jwt_token>
+```
+
+The system automatically extracts the user's organization ID from the JWT token and provides organization-based data isolation.
+
 ## Error Handling
 
 The API returns appropriate HTTP status codes:
@@ -350,6 +410,7 @@ The API returns appropriate HTTP status codes:
 - `200 OK`: Successful operation
 - `201 Created`: Resource created successfully
 - `400 Bad Request`: Invalid request data
+- `401 Unauthorized`: Missing or invalid authentication token
 - `405 Method Not Allowed`: Incorrect HTTP method
 - `500 Internal Server Error`: Server-side error
 
@@ -363,6 +424,7 @@ The API returns appropriate HTTP status codes:
 | `MONGO_COLLECTION_CONTACTS` | Contacts collection name | Yes |
 | `MONGO_COLLECTION_PHONE_NUMBERS` | Phone numbers collection name | Yes |
 | `VAPI_API_KEY` | VapiAI API key | Yes |
+| `CLERK_SECRET_KEY` | Clerk secret key for authentication | Yes |
 
 ## Development
 
@@ -370,29 +432,40 @@ The API returns appropriate HTTP status codes:
 ```
 Sarah/
 ├── api/                    # HTTP handlers and API endpoints
-│   ├── campaigns.go        # Campaign management endpoints
-│   ├── calls.go           # Call management endpoints
-│   ├── assistants.go      # Assistant management endpoints
-│   ├── contacts.go        # Contact management endpoints
-│   ├── phone_numbers.go   # Phone number management endpoints
-│   └── utils.go           # Shared utility functions
-├── mongodb/               # Database operations
-│   ├── campaigns.go       # Campaign database operations
-│   ├── assistants.go      # Assistant database operations
-│   ├── contacts.go        # Contact database operations
-│   └── phone_numbers.go   # Phone number database operations
-├── types/                 # Data type definitions
-│   └── mongodb/           # MongoDB-specific types
-│       ├── campaigns.go   # Campaign data structures
-│       ├── assistants.go  # Assistant data structures
-│       ├── contact.go     # Contact data structures
+│   ├── handlers.go         # Main API handlers for all endpoints
+│   └── utils.go            # Shared utility functions
+├── auth/                   # Authentication and authorization
+│   └── auth.go             # Clerk authentication middleware
+├── clerk/                  # Clerk integration
+│   └── organizations.go    # Organization management functions
+├── sarah/                  # Core business logic
+│   ├── campaigns.go        # Campaign management logic
+│   ├── calls.go            # Call management logic
+│   └── utils.go            # Business logic utilities
+├── mongodb/                # Database operations
+│   ├── campaigns.go        # Campaign database operations
+│   ├── assistants.go       # Assistant database operations
+│   ├── contacts.go         # Contact database operations
+│   └── phone_numbers.go    # Phone number database operations
+├── types/                  # Data type definitions
+│   └── mongodb/            # MongoDB-specific types
+│       ├── campaigns.go    # Campaign data structures
+│       ├── assistants.go   # Assistant data structures
+│       ├── contact.go      # Contact data structures
 │       └── phone_numbers.go # Phone number data structures
-├── main.go               # Application entry point
-├── go.mod               # Go module file
-├── go.sum               # Go module checksums
-├── README.md            # This file
-└── sample_campaigns.json # Example campaign data
+├── main.go                 # Application entry point
+├── go.mod                  # Go module file
+├── go.sum                  # Go module checksums
+├── README.md               # This file
+└── LICENSE                 # License file
 ```
+
+### Key Dependencies
+
+- **VapiAI SDK**: For voice AI integration
+- **Clerk SDK**: For authentication and user management
+- **MongoDB Driver**: For database operations
+- **Godotenv**: For environment variable management
 
 ## License
 
