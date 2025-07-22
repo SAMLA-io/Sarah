@@ -48,6 +48,42 @@ Given the nature of the project, we are using a MongoDB database to store the da
 
 ## Installation
 
+### Option 1: Docker (Recommended)
+
+1. Clone the repository:
+```bash
+git clone https://github.com/SAMLA-io/Sarah.git
+cd Sarah
+```
+
+2. Create a `.env` file with the following variables:
+```env
+# MongoDB Configuration
+MONGO_URI=mongodb://localhost:27017
+MONGO_COLLECTION_CAMPAIGNS=campaigns
+MONGO_COLLECTION_ASSISTANTS=assistants
+MONGO_COLLECTION_CONTACTS=contacts
+MONGO_COLLECTION_PHONE_NUMBERS=phone_numbers
+
+# VapiAI Configuration
+VAPI_API_KEY=your_vapi_api_key_here
+
+# Clerk Configuration
+CLERK_SECRET_KEY=your_clerk_secret_key_here
+```
+
+
+3. Build and run the Docker container:
+
+```bash
+docker build -t sarah .
+docker run -p 8080:8080 --env-file .env sarah
+```
+
+The API will be available at `http://localhost:8080`
+
+### Option 2: Local Development
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/SAMLA-io/Sarah.git
