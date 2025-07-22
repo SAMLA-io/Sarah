@@ -52,18 +52,6 @@ type SchedulePlan struct {
 	// AfterDay specifies how many days after a customer's relevant date to make the call
 	// For example, if AfterDay=1 and a customer has an expiry on day 15, calls will be made on day 16
 	AfterDay int `json:"after_day" bson:"after_day"`
-
-	// WeekDays specifies which days of the week the campaign can run (0=Sunday, 1=Monday, etc.)
-	// Only calls scheduled on these days will be executed
-	WeekDays []int `json:"week_days" bson:"week_days"` // 0=Sunday, 1=Monday, etc.
-
-	// MonthDays specifies specific days of the month when the campaign can run (1-31)
-	// If empty, any day of the month is allowed
-	MonthDays []int `json:"month_days" bson:"month_days"` // Days of month (1-31)
-
-	// YearMonths specifies specific months when the campaign can run (1-12)
-	// If empty, any month is allowed
-	YearMonths []int `json:"year_months" bson:"year_months"` // Months (1-12)
 }
 
 // Customer represents an individual customer in a campaign with their contact information
@@ -80,17 +68,9 @@ type Customer struct {
 	// This is typically used for yearly campaigns
 	MonthNumber int `json:"month_number" bson:"month_number"`
 
-	// WeekDay is the day of the week when this customer's calls should be scheduled (0-6)
-	// This is typically used for weekly campaigns
-	WeekDay int `json:"week_day" bson:"week_day"`
-
-	// CustomDate allows for one-time specific dates for this customer
-	// If set, this overrides the regular scheduling logic
-	CustomDate *time.Time `json:"custom_date" bson:"custom_date"` // For one-time specific dates
-
-	// ExpiryDate is typically used for insurance or subscription renewals
-	// The campaign will schedule calls relative to this date based on BeforeDay/AfterDay settings
-	ExpiryDate *time.Time `json:"expiry_date" bson:"expiry_date"` // For insurance/annual renewals
+	// YearNumber is the year when this customer's calls should be scheduled
+	// This is typically used for yearly campaigns
+	YearNumber int `json:"year_number" bson:"year_number"`
 }
 
 // CampaignType defines the different types of campaign recurrence patterns.
