@@ -31,3 +31,12 @@ func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto
 
 	return result
 }
+
+func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssistantDto) *vapiApi.Assistant {
+	result, err := VapiClient.Assistants.Update(context.Background(), assistantId, &assistantUpdateDto)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}

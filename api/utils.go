@@ -268,3 +268,21 @@ func ExtractAssistantCreateDto(r *http.Request) *vapiApi.CreateAssistantDto {
 
 	return &requestBody.AssistantCreateRequest
 }
+
+func ExtractAssistantUpdateDto(r *http.Request) *vapiApi.UpdateAssistantDto {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil
+	}
+
+	var requestBody struct {
+		AssistantUpdateRequest vapiApi.UpdateAssistantDto `json:"assistantUpdateRequest"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.AssistantUpdateRequest
+}

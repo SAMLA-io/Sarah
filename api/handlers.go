@@ -288,7 +288,7 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 //	  "backgroundDenoisingEnabled": false
 //	}
 //
-//	(See API documentation for full schema details.)
+//	(See API documentation for full schema details. https://docs.vapi.ai/api-reference/assistants/create)
 //
 // The organization ID is obtained from the auth bearer token.
 //
@@ -308,7 +308,7 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 //
 //	HTTP/1.1 200 OK
 //	Content-Type: application/json
-//	{ ...assistant object... }
+//	{ ...mongodb insert one result object... }
 func CreateAssistant(w http.ResponseWriter, r *http.Request) {
 	if !VerifyMethod(r, []string{"POST"}) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -319,6 +319,93 @@ func CreateAssistant(w http.ResponseWriter, r *http.Request) {
 	orgId := ExtractOrgId(r)
 
 	result := sarah.CreateAsisstant(orgId, *assistantCreateDto)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
+// UpdateAssistant handles PUT requests to update an existing assistant.
+// This endpoint accepts an assistant update request and updates the assistant in the database.
+//
+// HTTP Method: PATCH
+// Endpoint: /assistants/update
+//
+// Request Body:
+//
+// The request body must be a JSON object representing the assistant to update. The expected structure is:
+//
+//	{
+//		  "id": "foo",
+//		  "orgId": "foo",
+//		  "createdAt": "foo",
+//		  "updatedAt": "foo",
+//		  "transcriber": { ... },
+//		  "model": { ... },
+//		  "voice": { ... },
+//		  "firstMessage": "Hello! How can I help you today?",
+//		  "firstMessageInterruptionsEnabled": false,
+//		  "firstMessageMode": "assistant-speaks-first",
+//		  "voicemailDetection": { ... },
+//		  "clientMessages": "conversation-update",
+//		  "serverMessages": "conversation-update",
+//		  "maxDurationSeconds": 600,
+//		  "backgroundSound": "off",
+//		  "modelOutputInMessagesEnabled": false,
+//		  "transportConfigurations": [ ... ],
+//		  "observabilityPlan": { ... },
+//		  "credentials": [ ... ],
+//		  "hooks": [ ... ],
+//		  "name": "foo",
+//		  "voicemailMessage": "foo",
+//		  "endCallMessage": "foo",
+//		  "endCallPhrases": [ "foo" ],
+//		  "compliancePlan": { ... },
+//		  "metadata": {},
+//		  "backgroundSpeechDenoisingPlan": { ... },
+//		  "analysisPlan": { ... },
+//		  "artifactPlan": { ... },
+//		  "messagePlan": { ... },
+//		  "startSpeakingPlan": { ... },
+//		  "stopSpeakingPlan": { ... },
+//		  "monitorPlan": { ... },
+//		  "credentialIds": [ "foo" ],
+//		  "server": { ... },
+//		  "keypadInputPlan": { ... },
+//		  "backgroundDenoisingEnabled": false
+//		}
+//
+//		(See API documentation for full schema details. https://docs.vapi.ai/api-reference/assistants/update)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Assistant updated successfully, returns the updated assistant object
+//   - 405 Method Not Allowed: If not using PUT method
+//   - 400 Bad Request: If the request body is invalid
+//
+// Example Request:
+//
+//	PATCH /assistants/update
+//	Content-Type: application/json
+//	Authorization: Bearer <token>
+//	{ ...assistant body as above... }
+//
+// Example Response:
+//
+//	HTTP/1.1 200 OK
+//	Content-Type: application/json
+//	{ ... vapi update assistant object... }
+func UpdateAssistant(w http.ResponseWriter, r *http.Request) {
+
+	if !VerifyMethod(r, []string{"PATCH"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	assistantUpdateDto := ExtractAssistantUpdateDto(r)
+	assistantId := ExtractAssistantId(r)
+
+	result := sarah.UpdateAssistant(assistantId, *assistantUpdateDto)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
