@@ -310,6 +310,7 @@ Create a new assistant.
 
 **Request Body:**
 ```json
+View more details: https://docs.vapi.ai/api-reference/assistants/create
 {
   "id": "foo",
   "orgId": "foo",
@@ -914,6 +915,8 @@ Update an assistant.
 
 **Request Body:**
 ```json
+View more details: https://docs.vapi.ai/api-reference/assistants/update
+
 {
   "id": "foo",
   "orgId": "foo",
@@ -1505,6 +1508,24 @@ Update an assistant.
 
 ```json
 Same as request body
+```
+
+#### DELETE /assistants/delete
+Deletes an assistant.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Query Parameters:**
+- `assistantId`: The VapiAI assistant ID to delete (required)
+
+**Response:**
+
+```json
+{
+  "acknowledged": true,
+  "deletedCount": 1
+}
 ```
 
 #### GET /contacts/org

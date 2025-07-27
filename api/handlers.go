@@ -411,6 +411,50 @@ func UpdateAssistant(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+// DeleteAssistant handles DELETE requests to delete an existing assistant.
+// This endpoint accepts an assistant deletion request and deletes the assistant from the database.
+//
+// HTTP Method: DELETE
+// Endpoint: /assistants/delete
+//
+// Query Parameters:
+//   - assistantId: The VapiAI assistant ID to delete (required)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Assistant deleted successfully, returns the deleted assistant object
+//   - 405 Method Not Allowed: If not using DELETE method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Request:
+//
+//	DELETE /assistants/delete
+//	Content-Type: application/json
+//	Authorization: Bearer <token>
+//	{ ...assistantId... }
+//
+// Example Response:
+//
+//	HTTP/1.1 200 OK
+//	Content-Type: application/json
+//	{ ... mongodb delete one result object... }
+func DeleteAssistant(w http.ResponseWriter, r *http.Request) {
+
+	if !VerifyMethod(r, []string{"DELETE"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	assistantId := ExtractAssistantId(r)
+	orgId := ExtractOrgId(r)
+
+	result := sarah.DeleteAssistant(orgId, assistantId)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // CreateCampaign handles POST requests to create a new campaign.
 // This endpoint accepts a campaign creation request and stores it in the database.
 //

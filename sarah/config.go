@@ -40,3 +40,14 @@ func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssist
 
 	return result
 }
+
+func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
+	_, err := VapiClient.Assistants.Delete(context.Background(), assistantId)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result := mongodb.DeleteAssistant(orgId, assistantId)
+
+	return result
+}
