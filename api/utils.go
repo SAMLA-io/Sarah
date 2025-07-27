@@ -8,7 +8,7 @@ import (
 	mongodbTypes "sarah/types/mongodb"
 	"strings"
 
-	api "github.com/VapiAI/server-sdk-go"
+	vapiApi "github.com/VapiAI/server-sdk-go"
 )
 
 // ExtractAuthHeader extracts the Bearer token from the Authorization header.
@@ -150,7 +150,7 @@ func ExtractCallId(r *http.Request) string {
 //	    "offset": 0
 //	  }
 //	}
-func ExtractCallListRequest(r *http.Request) *api.CallsListRequest {
+func ExtractCallListRequest(r *http.Request) *vapiApi.CallsListRequest {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil
@@ -166,7 +166,7 @@ func ExtractCallListRequest(r *http.Request) *api.CallsListRequest {
 		return nil
 	}
 
-	var callListRequest api.CallsListRequest
+	var callListRequest vapiApi.CallsListRequest
 	if err := json.Unmarshal(raw, &callListRequest); err != nil {
 		return nil
 	}
@@ -249,4 +249,22 @@ func ExtractCampaignCreateDto(r *http.Request) *mongodbTypes.Campaign {
 	}
 
 	return &requestBody.CampaignCreateRequest
+}
+
+func ExtractAssistantCreateDto(r *http.Request) *vapiApi.CreateAssistantDto {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil
+	}
+
+	var requestBody struct {
+		AssistantCreateRequest vapiApi.CreateAssistantDto `json:"assistantCreateRequest"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.AssistantCreateRequest
 }

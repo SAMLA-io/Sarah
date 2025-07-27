@@ -302,6 +302,610 @@ Retrieve all assistants for an organization.
 ]
 ```
 
+#### POST /assistants/create
+Create a new assistant.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Request Body:**
+```json
+{
+  "id": "foo",
+  "orgId": "foo",
+  "createdAt": "foo",
+  "updatedAt": "foo",
+  "transcriber": {
+    "provider": "assembly-ai",
+    "language": "en",
+    "confidenceThreshold": 0.4,
+    "enableUniversalStreamingApi": false,
+    "formatTurns": false,
+    "endOfTurnConfidenceThreshold": 0.7,
+    "minEndOfTurnSilenceWhenConfident": 160,
+    "wordFinalizationMaxWaitTime": 160,
+    "maxTurnSilence": 400,
+    "realtimeUrl": "foo",
+    "wordBoost": [
+      "foo"
+    ],
+    "endUtteranceSilenceThreshold": 42,
+    "disablePartialTranscripts": true,
+    "fallbackPlan": {
+      "transcribers": [
+        {
+          "provider": "assembly-ai",
+          "language": "en",
+          "confidenceThreshold": 0.4,
+          "enableUniversalStreamingApi": false,
+          "formatTurns": false,
+          "endOfTurnConfidenceThreshold": 0.7,
+          "minEndOfTurnSilenceWhenConfident": 160,
+          "wordFinalizationMaxWaitTime": 160,
+          "maxTurnSilence": 400,
+          "realtimeUrl": "foo",
+          "wordBoost": [
+            "foo"
+          ],
+          "endUtteranceSilenceThreshold": 42,
+          "disablePartialTranscripts": true
+        }
+      ]
+    }
+  },
+  "model": {
+    "messages": [
+      {
+        "content": "foo",
+        "role": "assistant"
+      }
+    ],
+    "tools": [
+      {
+        "messages": [
+          {
+            "contents": [
+              {
+                "type": "text",
+                "text": "foo",
+                "language": "aa"
+              }
+            ],
+            "type": "request-start",
+            "blocking": false,
+            "content": "foo",
+            "conditions": [
+              {
+                "operator": "eq",
+                "param": "foo",
+                "value": "foo"
+              }
+            ]
+          }
+        ],
+        "type": "apiRequest",
+        "method": "POST",
+        "timeoutSeconds": 20,
+        "name": "foo",
+        "description": "foo",
+        "url": "foo",
+        "body": {
+          "type": "string",
+          "items": {},
+          "properties": {},
+          "description": "foo",
+          "pattern": "foo",
+          "format": "date-time",
+          "required": [
+            "foo"
+          ],
+          "enum": [
+            "foo"
+          ],
+          "title": "foo"
+        },
+        "headers": {
+          "type": "string",
+          "items": {},
+          "properties": {},
+          "description": "foo",
+          "pattern": "foo",
+          "format": "date-time",
+          "required": [
+            "foo"
+          ],
+          "enum": [
+            "foo"
+          ],
+          "title": "foo"
+        },
+        "backoffPlan": {
+          "type": "fixed",
+          "maxRetries": 0,
+          "baseDelaySeconds": 1
+        },
+        "variableExtractionPlan": {
+          "schema": {
+            "type": "string",
+            "items": {},
+            "properties": {},
+            "description": "foo",
+            "pattern": "foo",
+            "format": "date-time",
+            "required": [
+              "foo"
+            ],
+            "enum": [
+              "foo"
+            ],
+            "title": "foo"
+          },
+          "aliases": [
+            {
+              "key": "foo",
+              "value": "foo"
+            }
+          ]
+        }
+      }
+    ],
+    "toolIds": [
+      "foo"
+    ],
+    "knowledgeBase": {
+      "provider": "custom-knowledge-base",
+      "server": {
+        "timeoutSeconds": 20,
+        "url": "foo",
+        "headers": {},
+        "backoffPlan": {
+          "type": "fixed",
+          "maxRetries": 0,
+          "baseDelaySeconds": 1
+        }
+      }
+    },
+    "knowledgeBaseId": "foo",
+    "model": "claude-3-opus-20240229",
+    "provider": "anthropic",
+    "thinking": {
+      "type": "enabled",
+      "budgetTokens": 42
+    },
+    "temperature": 42,
+    "maxTokens": 42,
+    "emotionRecognitionEnabled": true,
+    "numFastTurns": 42
+  },
+  "voice": {
+    "cachingEnabled": true,
+    "provider": "azure",
+    "voiceId": "andrew",
+    "chunkPlan": {
+      "enabled": true,
+      "minCharacters": 30,
+      "punctuationBoundaries": "。",
+      "formatPlan": {
+        "enabled": true,
+        "numberToDigitsCutoff": 2025,
+        "replacements": [
+          {
+            "type": "exact",
+            "replaceAllEnabled": false,
+            "key": "foo",
+            "value": "foo"
+          }
+        ],
+        "formattersEnabled": "markdown"
+      }
+    },
+    "speed": 42,
+    "fallbackPlan": {
+      "voices": [
+        {
+          "cachingEnabled": true,
+          "provider": "azure",
+          "voiceId": "andrew",
+          "speed": 42,
+          "chunkPlan": {
+            "enabled": true,
+            "minCharacters": 30,
+            "punctuationBoundaries": "。",
+            "formatPlan": {
+              "enabled": true,
+              "numberToDigitsCutoff": 2025,
+              "replacements": [
+                {
+                  "type": {},
+                  "replaceAllEnabled": {},
+                  "key": {},
+                  "value": {}
+                }
+              ],
+              "formattersEnabled": "markdown"
+            }
+          },
+          "oneOf": null
+        }
+      ]
+    }
+  },
+  "firstMessage": "Hello! How can I help you today?",
+  "firstMessageInterruptionsEnabled": false,
+  "firstMessageMode": "assistant-speaks-first",
+  "voicemailDetection": {
+    "beepMaxAwaitSeconds": 30,
+    "provider": "google",
+    "backoffPlan": {
+      "startAtSeconds": 5,
+      "frequencySeconds": 5,
+      "maxRetries": 6
+    }
+  },
+  "clientMessages": "conversation-update",
+  "serverMessages": "conversation-update",
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "modelOutputInMessagesEnabled": false,
+  "transportConfigurations": [
+    {
+      "provider": "twilio",
+      "timeout": 60,
+      "record": false,
+      "recordingChannels": "mono"
+    }
+  ],
+  "observabilityPlan": {
+    "provider": "langfuse",
+    "tags": [
+      "foo"
+    ],
+    "metadata": {}
+  },
+  "credentials": [
+    {
+      "provider": "anthropic",
+      "apiKey": "foo",
+      "name": "foo"
+    }
+  ],
+  "hooks": [
+    {
+      "on": "call.ending",
+      "do": [
+        {
+          "type": "tool",
+          "tool": {
+            "messages": [
+              {
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "foo",
+                    "language": "aa"
+                  }
+                ],
+                "type": "request-start",
+                "blocking": false,
+                "content": "foo",
+                "conditions": [
+                  {
+                    "operator": "eq",
+                    "param": "foo",
+                    "value": "foo"
+                  }
+                ]
+              }
+            ],
+            "type": "apiRequest",
+            "method": "POST",
+            "timeoutSeconds": 20,
+            "name": "foo",
+            "description": "foo",
+            "url": "foo",
+            "body": {
+              "type": "string",
+              "items": {},
+              "properties": {},
+              "description": "foo",
+              "pattern": "foo",
+              "format": "date-time",
+              "required": [
+                "foo"
+              ],
+              "enum": [
+                "foo"
+              ],
+              "title": "foo"
+            },
+            "headers": {
+              "type": "string",
+              "items": {},
+              "properties": {},
+              "description": "foo",
+              "pattern": "foo",
+              "format": "date-time",
+              "required": [
+                "foo"
+              ],
+              "enum": [
+                "foo"
+              ],
+              "title": "foo"
+            },
+            "backoffPlan": {
+              "type": "fixed",
+              "maxRetries": 0,
+              "baseDelaySeconds": 1
+            },
+            "variableExtractionPlan": {
+              "schema": {
+                "type": "string",
+                "items": {},
+                "properties": {},
+                "description": "foo",
+                "pattern": "foo",
+                "format": "date-time",
+                "required": [
+                  "foo"
+                ],
+                "enum": [
+                  "foo"
+                ],
+                "title": "foo"
+              },
+              "aliases": [
+                {
+                  "key": "foo",
+                  "value": "foo"
+                }
+              ]
+            }
+          },
+          "toolId": "foo"
+        }
+      ],
+      "filters": [
+        {
+          "type": "oneOf",
+          "key": "foo",
+          "oneOf": [
+            "foo"
+          ]
+        }
+      ]
+    }
+  ],
+  "name": "foo",
+  "voicemailMessage": "foo",
+  "endCallMessage": "foo",
+  "endCallPhrases": [
+    "foo"
+  ],
+  "compliancePlan": {
+    "hipaaEnabled": {
+      "hipaaEnabled": false
+    },
+    "pciEnabled": {
+      "pciEnabled": false
+    }
+  },
+  "metadata": {},
+  "backgroundSpeechDenoisingPlan": {
+    "smartDenoisingPlan": {
+      "enabled": false
+    },
+    "fourierDenoisingPlan": {
+      "enabled": false,
+      "mediaDetectionEnabled": true,
+      "staticThreshold": -35,
+      "baselineOffsetDb": -15,
+      "windowSizeMs": 3000,
+      "baselinePercentile": 85
+    }
+  },
+  "analysisPlan": {
+    "minMessagesThreshold": 42,
+    "summaryPlan": {
+      "messages": [
+        {}
+      ],
+      "enabled": true,
+      "timeoutSeconds": 42
+    },
+    "structuredDataPlan": {
+      "messages": [
+        {}
+      ],
+      "enabled": true,
+      "schema": {
+        "type": "string",
+        "items": {},
+        "properties": {},
+        "description": "foo",
+        "pattern": "foo",
+        "format": "date-time",
+        "required": [
+          "foo"
+        ],
+        "enum": [
+          "foo"
+        ],
+        "title": "foo"
+      },
+      "timeoutSeconds": 42
+    },
+    "structuredDataMultiPlan": [
+      {
+        "key": "foo",
+        "plan": {
+          "messages": [
+            {}
+          ],
+          "enabled": true,
+          "schema": {
+            "type": "string",
+            "items": {},
+            "properties": {},
+            "description": "foo",
+            "pattern": "foo",
+            "format": "date-time",
+            "required": [
+              "foo"
+            ],
+            "enum": [
+              "foo"
+            ],
+            "title": "foo"
+          },
+          "timeoutSeconds": 42
+        }
+      }
+    ],
+    "successEvaluationPlan": {
+      "rubric": "NumericScale",
+      "messages": [
+        {}
+      ],
+      "enabled": true,
+      "timeoutSeconds": 42
+    }
+  },
+  "artifactPlan": {
+    "recordingEnabled": true,
+    "recordingFormat": "wav;l16",
+    "videoRecordingEnabled": false,
+    "pcapEnabled": true,
+    "pcapS3PathPrefix": "/pcaps",
+    "transcriptPlan": {
+      "enabled": true,
+      "assistantName": "foo",
+      "userName": "foo"
+    },
+    "recordingPath": "foo"
+  },
+  "messagePlan": {
+    "idleMessages": [
+      "foo"
+    ],
+    "idleMessageMaxSpokenCount": 42,
+    "idleMessageResetCountOnUserSpeechEnabled": true,
+    "idleTimeoutSeconds": 42,
+    "silenceTimeoutMessage": "foo"
+  },
+  "startSpeakingPlan": {
+    "waitSeconds": 0.4,
+    "smartEndpointingPlan": {
+      "provider": "vapi"
+    },
+    "customEndpointingRules": [
+      {
+        "type": "assistant",
+        "regex": "foo",
+        "regexOptions": [
+          {
+            "type": "ignore-case",
+            "enabled": true
+          }
+        ],
+        "timeoutSeconds": 42
+      }
+    ],
+    "transcriptionEndpointingPlan": {
+      "onPunctuationSeconds": 0.1,
+      "onNoPunctuationSeconds": 1.5,
+      "onNumberSeconds": 0.5
+    },
+    "smartEndpointingEnabled": false
+  },
+  "stopSpeakingPlan": {
+    "numWords": 0,
+    "voiceSeconds": 0.2,
+    "backoffSeconds": 1,
+    "acknowledgementPhrases": [
+      "i understand",
+      "i see",
+      "i got it",
+      "i hear you",
+      "im listening",
+      "im with you",
+      "right",
+      "okay",
+      "ok",
+      "sure",
+      "alright",
+      "got it",
+      "understood",
+      "yeah",
+      "yes",
+      "uh-huh",
+      "mm-hmm",
+      "gotcha",
+      "mhmm",
+      "ah",
+      "yeah okay",
+      "yeah sure"
+    ],
+    "interruptionPhrases": [
+      "stop",
+      "shut",
+      "up",
+      "enough",
+      "quiet",
+      "silence",
+      "but",
+      "dont",
+      "not",
+      "no",
+      "hold",
+      "wait",
+      "cut",
+      "pause",
+      "nope",
+      "nah",
+      "nevermind",
+      "never",
+      "bad",
+      "actually"
+    ]
+  },
+  "monitorPlan": {
+    "listenEnabled": false,
+    "listenAuthenticationEnabled": false,
+    "controlEnabled": false,
+    "controlAuthenticationEnabled": false
+  },
+  "credentialIds": [
+    "foo"
+  ],
+  "server": {
+    "timeoutSeconds": 20,
+    "url": "foo",
+    "headers": {},
+    "backoffPlan": {
+      "type": "fixed",
+      "maxRetries": 0,
+      "baseDelaySeconds": 1
+    }
+  },
+  "keypadInputPlan": {
+    "enabled": true,
+    "timeoutSeconds": 42,
+    "delimiters": "#"
+  },
+  "backgroundDenoisingEnabled": false
+}
+```
+
+**Response:**
+
+```json
+{
+  "InsertedID": "507f1f77bcf86cd799439011",
+  "Acknowledged": true
+}
+```
+
 #### GET /contacts/org
 Retrieve all contacts for an organization.
 

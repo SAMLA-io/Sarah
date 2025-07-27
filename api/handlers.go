@@ -168,13 +168,10 @@ func ListCalls(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetCallListByOrgId handles GET requests to retrieve all calls for an organization.
-// This endpoint aggregates calls from all assistants belonging to the specified organization.
+// This endpoint aggregates calls from all assistants belonging to the organization from the auth bearer token.
 //
 // HTTP Method: GET
 // Endpoint: /calls/org
-//
-// Query Parameters:
-//   - orgId: The organization ID to retrieve calls for (required)
 //
 // Response:
 //   - 200 OK: Calls retrieved successfully, returns an array of calls sorted by creation date
@@ -210,13 +207,10 @@ func GetCallListByOrgId(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOrganizationAssistants handles GET requests to retrieve all assistants for an organization.
-// This endpoint returns all VapiAI assistants that belong to the specified organization.
+// This endpoint returns all VapiAI assistants that belong to the organization from the auth bearer token.
 //
 // HTTP Method: GET
 // Endpoint: /assistants/org
-//
-// Query Parameters:
-//   - orgId: The organization ID to retrieve assistants for (required)
 //
 // Response:
 //   - 200 OK: Assistants retrieved successfully, returns an array of assistants
@@ -243,6 +237,91 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 	assistants := mongodb.GetOrganizationAssistants(orgID)
 
 	json.NewEncoder(w).Encode(assistants)
+}
+
+// CreateAssistant handles POST requests to create a new assistant for an organization.
+//
+// HTTP Method: POST
+// Endpoint: /assistants/create
+//
+// Request Body:
+//
+//	The request body must be a JSON object representing the assistant to create. The expected structure is:
+//
+//	{
+//	  "id": "foo",
+//	  "orgId": "foo",
+//	  "createdAt": "foo",
+//	  "updatedAt": "foo",
+//	  "transcriber": { ... },
+//	  "model": { ... },
+//	  "voice": { ... },
+//	  "firstMessage": "Hello! How can I help you today?",
+//	  "firstMessageInterruptionsEnabled": false,
+//	  "firstMessageMode": "assistant-speaks-first",
+//	  "voicemailDetection": { ... },
+//	  "clientMessages": "conversation-update",
+//	  "serverMessages": "conversation-update",
+//	  "maxDurationSeconds": 600,
+//	  "backgroundSound": "off",
+//	  "modelOutputInMessagesEnabled": false,
+//	  "transportConfigurations": [ ... ],
+//	  "observabilityPlan": { ... },
+//	  "credentials": [ ... ],
+//	  "hooks": [ ... ],
+//	  "name": "foo",
+//	  "voicemailMessage": "foo",
+//	  "endCallMessage": "foo",
+//	  "endCallPhrases": [ "foo" ],
+//	  "compliancePlan": { ... },
+//	  "metadata": {},
+//	  "backgroundSpeechDenoisingPlan": { ... },
+//	  "analysisPlan": { ... },
+//	  "artifactPlan": { ... },
+//	  "messagePlan": { ... },
+//	  "startSpeakingPlan": { ... },
+//	  "stopSpeakingPlan": { ... },
+//	  "monitorPlan": { ... },
+//	  "credentialIds": [ "foo" ],
+//	  "server": { ... },
+//	  "keypadInputPlan": { ... },
+//	  "backgroundDenoisingEnabled": false
+//	}
+//
+//	(See API documentation for full schema details.)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Assistant created successfully, returns the created assistant object
+//   - 405 Method Not Allowed: If not using POST method
+//   - 400 Bad Request: If the request body is invalid
+//
+// Example Request:
+//
+//	POST /assistants/create
+//	Content-Type: application/json
+//	Authorization: Bearer <token>
+//	{ ...assistant body as above... }
+//
+// Example Response:
+//
+//	HTTP/1.1 200 OK
+//	Content-Type: application/json
+//	{ ...assistant object... }
+func CreateAssistant(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"POST"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	assistantCreateDto := ExtractAssistantCreateDto(r)
+	orgId := ExtractOrgId(r)
+
+	result := sarah.CreateAsisstant(orgId, *assistantCreateDto)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
 }
 
 // CreateCampaign handles POST requests to create a new campaign.
@@ -283,8 +362,7 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 //	  }
 //	}
 //
-// Query Parameters:
-//   - orgId: The organization ID (required)
+// The organization ID is obtained from the auth bearer token.
 //
 // Response:
 //   - 200 OK: Campaign created successfully, returns the created campaign
@@ -307,13 +385,10 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetCampaignViaOrgID handles GET requests to retrieve all campaigns for an organization.
-// This endpoint returns all campaigns associated with the specified organization ID.
+// This endpoint returns all campaigns associated with the organization from the auth bearer token.
 //
 // HTTP Method: GET
 // Endpoint: /campaigns/org
-//
-// Query Parameters:
-//   - orgId: The organization ID (required)
 //
 // Response:
 //   - 200 OK: Returns an array of campaigns for the organization
@@ -351,13 +426,10 @@ func GetCampaignViaOrgID(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOrganizationContacts handles GET requests to retrieve all contacts for an organization.
-// This endpoint returns all customer contacts that belong to the specified organization.
+// This endpoint returns all customer contacts that belong to the organization from the auth bearer token.
 //
 // HTTP Method: GET
 // Endpoint: /contacts/org
-//
-// Query Parameters:
-//   - orgId: The organization ID to retrieve contacts for (required)
 //
 // Response:
 //   - 200 OK: Contacts retrieved successfully, returns an array of contacts
@@ -390,13 +462,10 @@ func GetOrganizationContacts(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOrganizationPhoneNumbers handles GET requests to retrieve all phone numbers for an organization.
-// This endpoint returns all VapiAI phone numbers that belong to the specified organization.
+// This endpoint returns all VapiAI phone numbers that belong to the organization from the auth bearer token.
 //
 // HTTP Method: GET
 // Endpoint: /phone_numbers/org
-//
-// Query Parameters:
-//   - orgId: The organization ID to retrieve phone numbers for (required)
 //
 // Response:
 //   - 200 OK: Phone numbers retrieved successfully, returns an array of phone numbers

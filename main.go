@@ -26,6 +26,7 @@ func main() {
 
 	// Organization resource endpoints
 	http.Handle("/assistants/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationAssistants)))      // GET: Get assistants by organization ID
+	http.Handle("/assistants/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateAssistant)))             // POST: Create a new assistant
 	http.Handle("/contacts/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationContacts)))          // GET: Get contacts by organization ID
 	http.Handle("/phone_numbers/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationPhoneNumbers))) // GET: Get phone numbers by organization ID
 

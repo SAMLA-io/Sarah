@@ -72,3 +72,14 @@ func GetOrganizationAssistants(orgId string) []mongodb.Assistant {
 
 	return assistants
 }
+
+func CreateAssistant(orgId string, assistant mongodb.Assistant) *mongo.InsertOneResult {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_ASSISTANTS"))
+
+	result, err := coll.InsertOne(context.Background(), assistant)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}
