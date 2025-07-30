@@ -51,3 +51,12 @@ func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
 
 	return result
 }
+
+func ExistsAssistant(assistantId string) bool {
+	assistant, err := VapiClient.Assistants.Get(context.Background(), assistantId)
+	if err != nil {
+		return false
+	}
+
+	return assistant != nil && assistant.Id != ""
+}

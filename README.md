@@ -907,6 +907,35 @@ View more details: https://docs.vapi.ai/api-reference/assistants/create
 }
 ```
 
+#### POST /assistants/register
+Register an assistant in the database. This is useful when an assistant is already created in VapiAI and needs to be registered in the database manually.
+This endpoint will not create the assistant in VapiAI, it will only register the assistant in the database IF it exists in VapiAI.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Request Body:**
+
+```json
+{
+  "assistant": {
+    "name": "foo",
+    "vapiAssistantId": "foo",
+    "type": "foo"
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "InsertedID": "507f1f77bcf86cd799439011",
+  "Acknowledged": true
+}
+```
+
+
 #### PATCH /assistants/update
 Update an assistant.
 

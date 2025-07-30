@@ -324,6 +324,41 @@ func CreateAssistant(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+// RegisterAssistant handles POST requests to register an already existing assistant.
+// This endpoint accepts an assistant registration request and registers the assistant in the database.
+// This is useful when an assistant is already created in VapiAI and needs to be registered in the database manually.
+// This endpoint will not create the assistant in VapiAI, it will only register the assistant in the database IF it exists in VapiAI.
+
+// HTTP Method: POST
+// Endpoint: /assistants/register
+//
+// Request Body:
+//
+//	{
+//	  "assistant": { ... }
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+func RegisterAssistant(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"POST"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	assistant := ExtractAssistant(r)
+	orgId := ExtractOrgId(r)
+
+	if !sarah.ExistsAssistant(assistant.VapiAssistantId) {
+		http.Error(w, "Assistant does not exist in VapiAI", http.StatusBadRequest)
+		return
+	}
+
+	result := mongodb.CreateAssistant(orgId, *assistant)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // UpdateAssistant handles PUT requests to update an existing assistant.
 // This endpoint accepts an assistant update request and updates the assistant in the database.
 //
