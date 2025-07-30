@@ -1614,6 +1614,40 @@ Create a new contact. This endpoint accepts a contact creation request and store
 }
 ```
 
+#### PATCH /contacts/update
+Update an existing contact. This endpoint accepts a contact update request and updates the contact in the database.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Request Body:**
+
+```json
+{
+  "contact": {
+    "name": "John Doe",
+    "phone_number": "+1234567890",
+    "email": "john.doe@example.com",
+    "company": "Example Inc.",
+    "position": "Software Engineer",
+    "address": "123 Main St, Anytown, USA",
+    "metadata": { ... }
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "MatchedCount": 1,
+  "ModifiedCount": 1,
+  "UpsertedCount": 0,
+  "UpsertedID": null,
+  "Acknowledged": true
+}
+```
+
 #### GET /phone_numbers/org
 Retrieve all phone numbers for an organization.
 

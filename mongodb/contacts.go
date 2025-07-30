@@ -65,3 +65,14 @@ func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult
 
 	return result
 }
+
+func UpdateContact(orgId string, contact mongodb.Contact) *mongo.UpdateResult {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
+
+	result, err := coll.UpdateOne(context.Background(), bson.M{"_id": contact.Id}, bson.M{"$set": contact})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}

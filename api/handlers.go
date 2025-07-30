@@ -675,6 +675,55 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+// UpdateContact handles PATCH requests to update an existing contact.
+// This endpoint accepts a contact update request and updates the contact in the database.
+//
+// HTTP Method: PATCH
+// Endpoint: /contacts/update
+//
+// Request Body:
+//
+//	{
+//	  "contact": {
+//	    "name": "John Doe",
+//	    "phoneNumber": "+1234567890",
+//	    "email": "john.doe@example.com",
+//	    "company": "Example Inc.",
+//	    "position": "Software Engineer",
+//	    "address": "123 Main St, Anytown, USA",
+//	    "metadata": { ... }
+//	  }
+//	}
+//
+// Response:
+//   - 200 OK: Contact updated successfully, returns the updated contact
+//   - 405 Method Not Allowed: If not using PATCH method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  MatchedCount: 1,
+//	  ModifiedCount: 1,
+//	  UpsertedCount: 0,
+//	  UpsertedID: nil,
+//	  Acknowledged: true
+//	}
+func UpdateContact(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"PATCH"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	contact := ExtractContact(r)
+	orgId := ExtractOrgId(r)
+
+	result := mongodb.UpdateContact(orgId, *contact)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // GetOrganizationPhoneNumbers handles GET requests to retrieve all phone numbers for an organization.
 // This endpoint returns all VapiAI phone numbers that belong to the organization from the auth bearer token.
 //
