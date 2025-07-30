@@ -724,6 +724,43 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+// DeleteContact handles DELETE requests to delete an existing contact.
+// This endpoint accepts a contact deletion request and deletes the contact from the database.
+//
+// HTTP Method: DELETE
+// Endpoint: /contacts/delete
+//
+// Query Parameters:
+//   - contactId: The contact ID to delete (required)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Contact deleted successfully, returns the deleted contact object
+//   - 405 Method Not Allowed: If not using DELETE method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  "DeletedCount": 1,
+//	  "Acknowledged": true
+//	}
+func DeleteContact(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"DELETE"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	contactId := ExtractContactId(r)
+	orgId := ExtractOrgId(r)
+
+	result := mongodb.DeleteContact(orgId, contactId)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // GetOrganizationPhoneNumbers handles GET requests to retrieve all phone numbers for an organization.
 // This endpoint returns all VapiAI phone numbers that belong to the organization from the auth bearer token.
 //

@@ -25,11 +25,17 @@ func main() {
 	http.Handle("/campaigns/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetCampaignViaOrgID))) // GET: Get campaigns by organization ID
 
 	// Organization resource endpoints
-	http.Handle("/assistants/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationAssistants)))      // GET: Get assistants by organization ID
-	http.Handle("/assistants/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateAssistant)))             // POST: Create a new assistant
-	http.Handle("/assistants/update", auth.VerifyingMiddleware(http.HandlerFunc(api.UpdateAssistant)))             // PATCH: Update an assistant
-	http.Handle("/assistants/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeleteAssistant)))             // DELETE: Delete an assistant
-	http.Handle("/contacts/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationContacts)))          // GET: Get contacts by organization ID
+	http.Handle("/assistants/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationAssistants))) // GET: Get assistants by organization ID
+	http.Handle("/assistants/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateAssistant)))        // POST: Create a new assistant
+	http.Handle("/assistants/update", auth.VerifyingMiddleware(http.HandlerFunc(api.UpdateAssistant)))        // PATCH: Update an assistant
+	http.Handle("/assistants/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeleteAssistant)))        // DELETE: Delete an assistant
+	http.Handle("/assistants/register", auth.VerifyingMiddleware(http.HandlerFunc(api.RegisterAssistant)))    // POST: Register an existing assistant
+
+	http.Handle("/contacts/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateContact)))        // POST: Create a new contact
+	http.Handle("/contacts/update", auth.VerifyingMiddleware(http.HandlerFunc(api.UpdateContact)))        // PATCH: Update an existing contact
+	http.Handle("/contacts/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationContacts))) // GET: Get contacts by organization ID
+	http.Handle("/contacts/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeleteContact)))        // DELETE: Delete an existing contact
+
 	http.Handle("/phone_numbers/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationPhoneNumbers))) // GET: Get phone numbers by organization ID
 
 	// Start the server on port 8080

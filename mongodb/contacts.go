@@ -66,10 +66,35 @@ func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult
 	return result
 }
 
+// UpdateContact updates an existing contact in the database.
+// This function updates an existing contact document in the contacts collection
+// for a specific organization.
+//
+// Parameters:
+//   - orgId: The organization ID to update the contact for
+//   - contact: The contact to update
 func UpdateContact(orgId string, contact mongodb.Contact) *mongo.UpdateResult {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
 	result, err := coll.UpdateOne(context.Background(), bson.M{"_id": contact.Id}, bson.M{"$set": contact})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
+}
+
+// DeleteContact deletes an existing contact from the database.
+// This function removes a contact document from the contacts collection
+// for a specific organization.
+//
+// Parameters:
+//   - orgId: The organization ID to delete the contact for
+//   - contactId: The object ID of the contact to delete
+func DeleteContact(orgId string, contactId string) *mongo.DeleteResult {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
+
+	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": contactId})
 	if err != nil {
 		log.Fatal(err)
 	}

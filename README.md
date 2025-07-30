@@ -1648,6 +1648,25 @@ Update an existing contact. This endpoint accepts a contact update request and u
 }
 ```
 
+#### DELETE /contacts/delete
+Delete an existing contact.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Query Parameters:**
+- `contactId`: The contact ID to delete (required). This is the MongoDB ObjectID of the contact.
+
+**Response:**
+
+```json
+{
+  "DeletedCount": 1,
+  "Acknowledged": true
+}
+```
+
+
 #### GET /phone_numbers/org
 Retrieve all phone numbers for an organization.
 

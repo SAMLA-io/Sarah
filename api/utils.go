@@ -322,3 +322,8 @@ func ExtractContact(r *http.Request) *mongodbTypes.Contact {
 
 	return &requestBody.Contact
 }
+
+func ExtractContactId(r *http.Request) string {
+	contactId := r.URL.Query().Get("contactId")
+	return strings.TrimSpace(contactId)
+}
