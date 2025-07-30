@@ -1582,6 +1582,38 @@ Retrieve all contacts for an organization.
 ]
 ```
 
+#### POST /contacts/create
+Create a new contact. This endpoint accepts a contact creation request and stores it in the database.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+
+**Request Body:**
+
+```json
+{
+  "contact": {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone_number": "+1234567890",
+    "company": "Example Inc.",
+    "position": "Software Engineer",
+    "address": "123 Main St, Anytown, USA",
+    "metadata": { ... }
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "InsertedID": "507f1f77bcf86cd799439011",
+  "Acknowledged": true
+}
+```
+
 #### GET /phone_numbers/org
 Retrieve all phone numbers for an organization.
 

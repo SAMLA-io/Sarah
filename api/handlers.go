@@ -627,6 +627,54 @@ func GetOrganizationContacts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(contacts)
 }
 
+// CreateContact handles POST requests to create a new contact.
+// This endpoint accepts a contact creation request and stores it in the database.
+//
+// HTTP Method: POST
+// Endpoint: /contacts/create
+//
+// Request Body:
+//
+//	{
+//	  "contact": {
+//	    "name": "John Doe",
+//	    "phoneNumber": "+1234567890",
+//	    "email": "john.doe@example.com",
+//	    "company": "Example Inc.",
+//	    "position": "Software Engineer",
+//	    "address": "123 Main St, Anytown, USA"
+//	    "metadata": { ... }
+//	  }
+//	}
+//
+// Response:
+//   - 200 OK: Contact created successfully, returns the created contact
+//   - 405 Method Not Allowed: If not using POST method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  InsertedID: "507f1f77bcf86cd799439011",
+//	  Acknowledged: true
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+func CreateContact(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"POST"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	contact := ExtractContact(r)
+	orgId := ExtractOrgId(r)
+
+	result := mongodb.CreateContact(orgId, *contact)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // GetOrganizationPhoneNumbers handles GET requests to retrieve all phone numbers for an organization.
 // This endpoint returns all VapiAI phone numbers that belong to the organization from the auth bearer token.
 //

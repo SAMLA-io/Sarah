@@ -7,6 +7,7 @@ import (
 	"sarah/types/mongodb"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // GetContactByOrgId retrieves all contacts for a specific organization from the database.
@@ -45,4 +46,22 @@ func GetContactByOrgId(orgId string) []mongodb.Contact {
 	}
 
 	return contacts
+}
+
+// CreateContact creates a new contact in the database.
+// This function inserts a new contact document into the contacts collection
+// for a specific organization.
+//
+// Parameters:
+//   - orgId: The organization ID to create the contact for
+//   - contact: The contact to create
+func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
+
+	result, err := coll.InsertOne(context.Background(), contact)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return result
 }

@@ -304,3 +304,21 @@ func ExtractAssistant(r *http.Request) *mongodbTypes.Assistant {
 
 	return &requestBody.Assistant
 }
+
+func ExtractContact(r *http.Request) *mongodbTypes.Contact {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil
+	}
+
+	var requestBody struct {
+		Contact mongodbTypes.Contact `json:"contact"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.Contact
+}
