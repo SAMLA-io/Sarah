@@ -607,6 +607,128 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(campaign)
 }
 
+// UpdateCampaign handles PATCH requests to update an existing campaign.
+// This endpoint accepts a campaign update request and updates the campaign in the database.
+//
+// HTTP Method: PATCH
+// Endpoint: /campaigns/update
+//
+// Request Body:
+//
+//	{
+//	  "campaignUpdateRequest": {
+//	    "name": "Weekly Insurance Reminders",
+//	    "assistant_id": "asst_1234567890abcdef",
+//	    "phone_number_id": "phone_0987654321fedcba",
+//	    "schedule_plan": {
+//	      "before_day": 3,
+//	      "after_day": 0,
+//	      "week_days": [1, 3, 5],
+//	      "month_days": [],
+//	      "year_months": []
+//	    },
+//	    "customers": [
+//	      {
+//	        "phone_number": "+1234567890",
+//	        "day_number": 15,
+//	        "month_number": 3,
+//	        "week_day": 1,
+//	        "custom_date": null,
+//	        "expiry_date": "2024-12-31T23:59:59Z"
+//	      }
+//	    ],
+//	    "type": "recurrent_weekly",
+//	    "status": "active",
+//	    "start_date": "2024-01-01T00:00:00Z",
+//	    "end_date": "2024-12-31T23:59:59Z",
+//	    "timezone": "America/New_York"
+//	  }
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Campaign updated successfully, returns the updated campaign
+//   - 405 Method Not Allowed: If not using PATCH method
+//   - 500 Internal Server Error: If database operation fails
+
+// Example Response:
+//
+//	{
+//	  "MatchedCount": 1,
+//	  "ModifiedCount": 1,
+//	  "UpsertedCount": 0,
+//	  "UpsertedID": nil,
+//	  "Acknowledged": true
+//	}
+func UpdateCampaign(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"PATCH"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	campaignUpdateDto := ExtractCampaignUpdateDto(r)
+	orgId := ExtractOrgId(r)
+
+	result, err := mongodb.UpdateCampaign(orgId, *campaignUpdateDto)
+
+	if result == nil {
+		http.Error(w, "Failed to update campaign", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to update campaign", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
+// DeleteCampaign handles DELETE requests to delete an existing campaign.
+// This endpoint accepts a campaign deletion request and deletes the campaign from the database.
+//
+// HTTP Method: DELETE
+// Endpoint: /campaigns/delete
+//
+// Query Parameters:
+//   - campaignId: The campaign ID to delete (required)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Campaign deleted successfully, returns the deleted campaign object
+//   - 405 Method Not Allowed: If not using DELETE method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  "DeletedCount": 1,
+//	  "Acknowledged": true
+//	}
+func DeleteCampaign(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"DELETE"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	campaignId := ExtractCampaignId(r)
+	orgId := ExtractOrgId(r)
+
+	result, err := mongodb.DeleteCampaign(orgId, campaignId)
+
+	if result == nil {
+		http.Error(w, "Failed to delete campaign", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to delete campaign", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
 // GetCampaignViaOrgID handles GET requests to retrieve all campaigns for an organization.
 // This endpoint returns all campaigns associated with the organization from the auth bearer token.
 //

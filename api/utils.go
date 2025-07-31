@@ -251,6 +251,68 @@ func ExtractCampaignCreateDto(r *http.Request) *mongodbTypes.Campaign {
 	return &requestBody.CampaignCreateRequest
 }
 
+// ExtractCampaignUpdateDto extracts a campaign update DTO from the request body.
+// The function expects a JSON body with a "campaignUpdateRequest" object field.
+// This matches the structure shown in sample_campaigns.json.
+//
+// Parameters:
+//   - r: HTTP request containing the campaign update request in the request body
+//
+// Returns:
+//   - *mongodb.Campaign: The extracted campaign update DTO, or nil if extraction fails
+//
+// Request Body Format:
+//
+//	{
+//	  "campaignUpdateRequest": {
+//	    "name": "Weekly Insurance Reminders",
+//	    "assistant_id": "asst_1234567890abcdef",
+//	    "phone_number_id": "phone_0987654321fedcba",
+//	    "schedule_plan": { ... },
+//	    "customers": [ ... ],
+//	    "type": "recurrent_weekly",
+//	    "status": "active",
+//	    "start_date": "2024-01-01T00:00:00Z",
+//	    "end_date": "2024-12-31T23:59:59Z",
+//	    "timezone": "America/New_York"
+//	  }
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Campaign updated successfully, returns the updated campaign
+//   - 405 Method Not Allowed: If not using PATCH method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  "MatchedCount": 1,
+//	  "ModifiedCount": 1,
+//	  "UpsertedCount": 0,
+//	  "UpsertedID": nil,
+//	  "Acknowledged": true
+//	}
+
+func ExtractCampaignUpdateDto(r *http.Request) *mongodbTypes.Campaign {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil
+	}
+
+	var requestBody struct {
+		CampaignUpdateRequest mongodbTypes.Campaign `json:"campaignUpdateRequest"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.CampaignUpdateRequest
+}
+
 func ExtractAssistantCreateDto(r *http.Request) *vapiApi.CreateAssistantDto {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

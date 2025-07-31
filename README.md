@@ -169,16 +169,60 @@ Create a new campaign.
 **Response:**
 ```json
 {
-  "name": "Weekly Insurance Reminders",
-  "assistant_id": "asst_1234567890abcdef",
-  "phone_number_id": "phone_0987654321fedcba",
-  "schedule_plan": { ... },
-  "customers": [ ... ],
-  "type": "recurrent_weekly",
-  "status": "active",
-  "start_date": "2024-01-01T00:00:00Z",
-  "end_date": "2024-12-31T23:59:59Z",
-  "timezone": "America/New_York"
+  "InsertedID": "507f1f77bcf86cd799439011",
+  "Acknowledged": true
+}
+```
+
+#### PATCH /campaigns/update
+Update an existing campaign.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Request Body:**
+```json
+{
+  "campaignUpdateRequest": {
+    "name": "Weekly Insurance Reminders",
+    "assistant_id": "asst_1234567890abcdef",
+    "phone_number_id": "phone_0987654321fedcba",
+    "schedule_plan": { ... },
+    "customers": [ ... ],
+    "type": "recurrent_weekly",
+    "status": "active",
+    "start_date": "2024-01-01T00:00:00Z",
+    "end_date": "2024-12-31T23:59:59Z",
+    "timezone": "America/New_York"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "MatchedCount": 1,
+  "ModifiedCount": 1,
+  "UpsertedCount": 0,
+  "UpsertedID": nil,
+  "Acknowledged": true
+}
+```
+
+#### DELETE /campaigns/delete
+Delete an existing campaign.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Query Parameters:**
+- `campaignId` (required): The campaign ID to delete
+
+**Response:**
+```json
+{
+  "DeletedCount": 1,
+  "Acknowledged": true
 }
 ```
 

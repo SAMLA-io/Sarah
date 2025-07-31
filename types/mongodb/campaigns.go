@@ -5,12 +5,17 @@ package mongodb
 
 import (
 	"time"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // Campaign represents a complete campaign configuration in the database.
 // A campaign defines automated calling strategies with specific scheduling,
 // customer lists, and integration with VapiAI assistants.
 type Campaign struct {
+	// Id is the unique MongoDB ObjectID for this campaign
+	Id bson.ObjectID `json:"id" bson:"_id,omitempty"`
+
 	// Name is the human-readable identifier for the campaign
 	Name string `json:"name" bson:"name"`
 

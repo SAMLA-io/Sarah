@@ -74,3 +74,43 @@ func CreateCampaign(orgId string, campaign mongodb.Campaign) (*mongo.InsertOneRe
 
 	return result, nil
 }
+
+// UpdateCampaign updates an existing campaign in the database for the specified organization.
+// This function updates a campaign document in the campaigns collection
+// and returns the result of the update operation.
+//
+// Parameters:
+//   - orgId: The organization ID to update the campaign for
+//   - campaign: The campaign data to update in the database
+//
+// Returns:
+//   - *mongo.UpdateResult: The result of the update operation
+//
+// Database Operations:
+//   - Database: Uses the organization ID as the database name
+//   - Collection: Uses the MONGO_COLLECTION_CAMPAIGNS environment variable
+//   - Operation: Updates a single campaign document
+//
+// Error Handling:
+//   - Logs and terminates the application if database operations fail
+func UpdateCampaign(orgId string, campaign mongodb.Campaign) (*mongo.UpdateResult, error) {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
+
+	result, err := coll.UpdateOne(context.Background(), bson.M{"_id": campaign.Id}, bson.M{"$set": campaign})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func DeleteCampaign(orgId string, campaignId string) (*mongo.DeleteResult, error) {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
+
+	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": campaignId})
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

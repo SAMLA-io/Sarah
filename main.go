@@ -22,8 +22,10 @@ func main() {
 	http.Handle("/calls/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetCallListByOrgId))) // GET: Get calls by organization ID
 
 	// Campaign management endpoints
-	http.Handle("/campaigns/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateCampaign)))   // POST: Create a new campaign
 	http.Handle("/campaigns/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetCampaignViaOrgID))) // GET: Get campaigns by organization ID
+	http.Handle("/campaigns/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreateCampaign)))   // POST: Create a new campaign
+	http.Handle("/campaigns/update", auth.VerifyingMiddleware(http.HandlerFunc(api.UpdateCampaign)))   // PATCH: Update an existing campaign
+	http.Handle("/campaigns/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeleteCampaign)))   // DELETE: Delete an existing campaign
 
 	// Organization resource endpoints
 	http.Handle("/assistants/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationAssistants))) // GET: Get assistants by organization ID
