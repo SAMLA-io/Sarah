@@ -891,3 +891,102 @@ func GetOrganizationPhoneNumbers(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(phoneNumbers)
 }
+
+// CreatePhoneNumber handles POST requests to create a new phone number.
+// This endpoint accepts a phone number creation request and stores it in the database.
+//
+// HTTP Method: POST
+// Endpoint: /phone_numbers/create
+//
+// Request Body:
+//
+//	{
+//	  "phoneNumber": {
+//	    "name": "Main Office Line",
+//	    "phoneNumber": "+1987654321",
+//	    "vapiPhoneNumberId": "phone_0987654321fedcba"
+//	  }
+//	}
+//
+// Response:
+//   - 200 OK: Phone number created successfully, returns the created phone number
+//   - 405 Method Not Allowed: If not using POST method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  InsertedID: "507f1f77bcf86cd799439011",
+//	  Acknowledged: true
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+func CreatePhoneNumber(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"POST"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	phoneNumber := ExtractPhoneNumber(r)
+	orgId := ExtractOrgId(r)
+
+	result, err := mongodb.CreatePhoneNumber(orgId, *phoneNumber)
+
+	if result == nil {
+		http.Error(w, "Failed to create phone number", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to create phone number", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}
+
+// DeletePhoneNumber handles DELETE requests to delete an existing phone number.
+// This endpoint accepts a phone number deletion request and deletes the phone number from the database.
+//
+// HTTP Method: DELETE
+// Endpoint: /phone_numbers/delete
+//
+// Query Parameters:
+//   - phoneNumberId: The phone number ID to delete (required)
+//
+// The organization ID is obtained from the auth bearer token.
+//
+// Response:
+//   - 200 OK: Phone number deleted successfully, returns the deleted phone number object
+//   - 405 Method Not Allowed: If not using DELETE method
+//   - 500 Internal Server Error: If database operation fails
+//
+// Example Response:
+//
+//	{
+//	  "DeletedCount": 1,
+//	  "Acknowledged": true
+//	}
+//
+// The organization ID is obtained from the auth bearer token.
+func DeletePhoneNumber(w http.ResponseWriter, r *http.Request) {
+	if !VerifyMethod(r, []string{"DELETE"}) {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	phoneNumberId := ExtractPhoneNumberId(r)
+	orgId := ExtractOrgId(r)
+
+	result, err := mongodb.DeletePhoneNumber(orgId, phoneNumberId)
+
+	if result == nil {
+		http.Error(w, "Failed to delete phone number", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to delete phone number", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+}

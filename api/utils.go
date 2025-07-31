@@ -327,3 +327,26 @@ func ExtractContactId(r *http.Request) string {
 	contactId := r.URL.Query().Get("contactId")
 	return strings.TrimSpace(contactId)
 }
+
+func ExtractPhoneNumber(r *http.Request) *mongodbTypes.PhoneNumber {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil
+	}
+
+	var requestBody struct {
+		PhoneNumber mongodbTypes.PhoneNumber `json:"phoneNumber"`
+	}
+
+	err = json.Unmarshal(body, &requestBody)
+	if err != nil {
+		return nil
+	}
+
+	return &requestBody.PhoneNumber
+}
+
+func ExtractPhoneNumberId(r *http.Request) string {
+	phoneNumberId := r.URL.Query().Get("phoneNumberId")
+	return strings.TrimSpace(phoneNumberId)
+}

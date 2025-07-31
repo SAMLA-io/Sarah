@@ -38,6 +38,8 @@ func main() {
 	http.Handle("/contacts/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeleteContact)))        // DELETE: Delete an existing contact
 
 	http.Handle("/phone_numbers/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationPhoneNumbers))) // GET: Get phone numbers by organization ID
+	http.Handle("/phone_numbers/create", auth.VerifyingMiddleware(http.HandlerFunc(api.CreatePhoneNumber)))        // POST: Create a new phone number
+	http.Handle("/phone_numbers/delete", auth.VerifyingMiddleware(http.HandlerFunc(api.DeletePhoneNumber)))        // DELETE: Delete an existing phone number
 
 	server := &http.Server{
 		Addr:         ":8080",

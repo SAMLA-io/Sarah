@@ -7,6 +7,7 @@ import (
 	"sarah/types/mongodb"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // GetPhoneNumberByOrgId retrieves all phone numbers for a specific organization from the database.
@@ -47,4 +48,28 @@ func GetPhoneNumberByOrgId(orgId string) ([]mongodb.PhoneNumber, error) {
 	}
 
 	return phoneNumbers, nil
+}
+
+func CreatePhoneNumber(orgId string, phoneNumber mongodb.PhoneNumber) (*mongo.InsertOneResult, error) {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_PHONE_NUMBERS"))
+
+	result, err := coll.InsertOne(context.Background(), phoneNumber)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func DeletePhoneNumber(orgId string, phoneNumberId string) (*mongo.DeleteResult, error) {
+	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_PHONE_NUMBERS"))
+
+	result, err := coll.DeleteOne(context.Background(), bson.M{"phone_number_id": phoneNumberId})
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return result, nil
 }

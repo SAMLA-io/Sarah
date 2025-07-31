@@ -1685,6 +1685,51 @@ Retrieve all phone numbers for an organization.
 ]
 ```
 
+#### POST /phone_numbers/create
+Create a new phone number. This endpoint accepts a phone number creation request and stores it in the database.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Request Body:**
+
+```json
+{
+  "phoneNumber": {
+    "name": "Main Office Line",
+    "phone_number": "+1987654321",
+    "phone_number_id": "phone_0987654321fedcba"
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "InsertedID": "507f1f77bcf86cd799439011",
+  "Acknowledged": true
+}
+```
+
+#### DELETE /phone_numbers/delete
+Delete an existing phone number.
+
+**Headers:**
+- `Authorization: Bearer <clerk_jwt_token>` (required)
+
+**Query Parameters:**
+- `phoneNumberId`: The phone number ID to delete (required)
+
+**Response:**
+
+```json
+{
+  "DeletedCount": 1,
+  "Acknowledged": true
+}
+```
+
 ## Data Models
 
 ### Campaign
