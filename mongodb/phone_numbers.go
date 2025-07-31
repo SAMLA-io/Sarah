@@ -36,12 +36,12 @@ func GetPhoneNumberByOrgId(orgId string) []mongodb.PhoneNumber {
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	var phoneNumbers []mongodb.PhoneNumber
 	if err := cursor.All(context.Background(), &phoneNumbers); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return phoneNumbers

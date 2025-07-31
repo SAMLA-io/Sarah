@@ -20,7 +20,7 @@ func init() {
 func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto) *mongo.InsertOneResult {
 	assistant, err := VapiClient.Assistants.Create(context.Background(), &assistantCreateDto)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	result := mongodb.CreateAssistant(orgId, mongodbTypes.Assistant{
@@ -35,7 +35,7 @@ func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto
 func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssistantDto) *vapiApi.Assistant {
 	result, err := VapiClient.Assistants.Update(context.Background(), assistantId, &assistantUpdateDto)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -44,7 +44,7 @@ func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssist
 func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
 	_, err := VapiClient.Assistants.Delete(context.Background(), assistantId)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	result := mongodb.DeleteAssistant(orgId, assistantId)

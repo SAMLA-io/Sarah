@@ -32,12 +32,12 @@ func GetCampaignByOrgId(orgId string) []mongodb.Campaign {
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	var campaigns []mongodb.Campaign
 	if err := cursor.All(context.Background(), &campaigns); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return campaigns

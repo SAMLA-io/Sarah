@@ -37,12 +37,12 @@ func GetContactByOrgId(orgId string) []mongodb.Contact {
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	var contacts []mongodb.Contact
 	if err := cursor.All(context.Background(), &contacts); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return contacts
@@ -60,7 +60,7 @@ func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult
 
 	result, err := coll.InsertOne(context.Background(), contact)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -78,7 +78,7 @@ func UpdateContact(orgId string, contact mongodb.Contact) *mongo.UpdateResult {
 
 	result, err := coll.UpdateOne(context.Background(), bson.M{"_id": contact.Id}, bson.M{"$set": contact})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -96,7 +96,7 @@ func DeleteContact(orgId string, contactId string) *mongo.DeleteResult {
 
 	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": contactId})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result

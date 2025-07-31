@@ -62,12 +62,12 @@ func GetOrganizationAssistants(orgId string) []mongodb.Assistant {
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	var assistants []mongodb.Assistant
 	if err := cursor.All(context.Background(), &assistants); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return assistants
@@ -78,7 +78,7 @@ func CreateAssistant(orgId string, assistant mongodb.Assistant) *mongo.InsertOne
 
 	result, err := coll.InsertOne(context.Background(), assistant)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
@@ -89,7 +89,7 @@ func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
 
 	result, err := coll.DeleteOne(context.Background(), bson.M{"vapi_assistant_id": assistantId})
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return result
