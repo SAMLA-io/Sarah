@@ -66,7 +66,19 @@ func GetCampaignByOrgId(orgId string) ([]mongodb.Campaign, error) {
 func CreateCampaign(orgId string, campaign mongodb.Campaign) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
 
-	result, err := coll.InsertOne(context.Background(), campaign)
+	result, err := coll.InsertOne(context.Background(), mongodb.Campaign{
+		Name:          campaign.Name,
+		AssistantId:   campaign.AssistantId,
+		PhoneNumberId: campaign.PhoneNumberId,
+		Customers:     campaign.Customers,
+		SchedulePlan:  campaign.SchedulePlan,
+		StartDate:     campaign.StartDate,
+		EndDate:       campaign.EndDate,
+		Type:          campaign.Type,
+		Status:        campaign.Status,
+		TimeZone:      campaign.TimeZone,
+	})
+
 	if err != nil {
 		return nil, err
 	}

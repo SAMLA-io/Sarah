@@ -78,7 +78,11 @@ func GetOrganizationAssistants(orgId string) ([]mongodb.Assistant, error) {
 func CreateAssistant(orgId string, assistant mongodb.Assistant) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_ASSISTANTS"))
 
-	result, err := coll.InsertOne(context.Background(), assistant)
+	result, err := coll.InsertOne(context.Background(), mongodb.Assistant{
+		Name:            assistant.Name,
+		VapiAssistantId: assistant.VapiAssistantId,
+		Type:            assistant.Type,
+	})
 	if err != nil {
 		log.Println(err)
 		return nil, err
