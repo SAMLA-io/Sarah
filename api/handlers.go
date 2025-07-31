@@ -59,9 +59,12 @@ func CreateCall(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	resp := sarah.CreateCall(assistantId, assistantNumberId, customers)
+	resp, err := sarah.CreateCall(assistantId, assistantNumberId, customers)
 
 	if resp == nil {
+		http.Error(w, "Failed to create call", http.StatusInternalServerError)
+		return
+	} else if err != nil {
 		http.Error(w, "Failed to create call", http.StatusInternalServerError)
 		return
 	}
@@ -104,9 +107,12 @@ func GetCall(w http.ResponseWriter, r *http.Request) {
 
 	callId := ExtractCallId(r)
 
-	resp := sarah.GetCall(callId)
+	resp, err := sarah.GetCall(callId)
 
 	if resp == nil {
+		http.Error(w, "Failed to get call", http.StatusInternalServerError)
+		return
+	} else if err != nil {
 		http.Error(w, "Failed to get call", http.StatusInternalServerError)
 		return
 	}
@@ -156,9 +162,12 @@ func ListCalls(w http.ResponseWriter, r *http.Request) {
 
 	callListRequest := ExtractCallListRequest(r)
 
-	calls := sarah.ListCalls(callListRequest)
+	calls, err := sarah.ListCalls(callListRequest)
 
 	if calls == nil {
+		http.Error(w, "Failed to list calls", http.StatusInternalServerError)
+		return
+	} else if err != nil {
 		http.Error(w, "Failed to list calls", http.StatusInternalServerError)
 		return
 	}
@@ -196,11 +205,15 @@ func GetCallListByOrgId(w http.ResponseWriter, r *http.Request) {
 
 	orgID := ExtractOrgId(r)
 
-	calls := sarah.GetOrganizationCalls(orgID)
+	calls, err := sarah.GetOrganizationCalls(orgID)
 
 	sort.Slice(calls, func(i, j int) bool {
 		return calls[i].CreatedAt.After(calls[j].CreatedAt)
 	})
+	if err != nil {
+		http.Error(w, "Failed to get organization calls", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(calls)
@@ -234,9 +247,13 @@ func GetOrganizationAssistants(w http.ResponseWriter, r *http.Request) {
 	}
 
 	orgID := ExtractOrgId(r)
-	assistants := mongodb.GetOrganizationAssistants(orgID)
+	assistants, err := mongodb.GetOrganizationAssistants(orgID)
 
 	json.NewEncoder(w).Encode(assistants)
+	if err != nil {
+		http.Error(w, "Failed to get organization assistants", http.StatusInternalServerError)
+		return
+	}
 }
 
 // CreateAssistant handles POST requests to create a new assistant for an organization.
@@ -318,7 +335,15 @@ func CreateAssistant(w http.ResponseWriter, r *http.Request) {
 	assistantCreateDto := ExtractAssistantCreateDto(r)
 	orgId := ExtractOrgId(r)
 
-	result := sarah.CreateAsisstant(orgId, *assistantCreateDto)
+	result, err := sarah.CreateAsisstant(orgId, *assistantCreateDto)
+
+	if result == nil {
+		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -353,7 +378,15 @@ func RegisterAssistant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := mongodb.CreateAssistant(orgId, *assistant)
+	result, err := mongodb.CreateAssistant(orgId, *assistant)
+
+	if result == nil {
+		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -440,7 +473,15 @@ func UpdateAssistant(w http.ResponseWriter, r *http.Request) {
 	assistantUpdateDto := ExtractAssistantUpdateDto(r)
 	assistantId := ExtractAssistantId(r)
 
-	result := sarah.UpdateAssistant(assistantId, *assistantUpdateDto)
+	result, err := sarah.UpdateAssistant(assistantId, *assistantUpdateDto)
+
+	if result == nil {
+		http.Error(w, "Failed to update assistant", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to update assistant", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -484,7 +525,15 @@ func DeleteAssistant(w http.ResponseWriter, r *http.Request) {
 	assistantId := ExtractAssistantId(r)
 	orgId := ExtractOrgId(r)
 
-	result := sarah.DeleteAssistant(orgId, assistantId)
+	result, err := sarah.DeleteAssistant(orgId, assistantId)
+
+	if result == nil {
+		http.Error(w, "Failed to delete assistant", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to delete assistant", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -544,7 +593,15 @@ func CreateCampaign(w http.ResponseWriter, r *http.Request) {
 	orgId := ExtractOrgId(r)
 
 	// Adds the campaign to the database
-	campaign := sarah.CreateCampaign(*campaignCreateDto, orgId)
+	campaign, err := sarah.CreateCampaign(*campaignCreateDto, orgId)
+
+	if campaign == nil {
+		http.Error(w, "Failed to create campaign", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to create campaign", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(campaign)
@@ -585,7 +642,12 @@ func GetCampaignViaOrgID(w http.ResponseWriter, r *http.Request) {
 
 	orgId := ExtractOrgId(r)
 
-	campaigns := mongodb.GetCampaignByOrgId(orgId)
+	campaigns, err := mongodb.GetCampaignByOrgId(orgId)
+
+	if err != nil {
+		http.Error(w, "Failed to get campaigns", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(campaigns)
@@ -621,7 +683,12 @@ func GetOrganizationContacts(w http.ResponseWriter, r *http.Request) {
 
 	orgID := ExtractOrgId(r)
 
-	contacts := mongodb.GetContactByOrgId(orgID)
+	contacts, err := mongodb.GetContactByOrgId(orgID)
+
+	if err != nil {
+		http.Error(w, "Failed to get contacts", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(contacts)
@@ -669,7 +736,15 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	contact := ExtractContact(r)
 	orgId := ExtractOrgId(r)
 
-	result := mongodb.CreateContact(orgId, *contact)
+	result, err := mongodb.CreateContact(orgId, *contact)
+
+	if result == nil {
+		http.Error(w, "Failed to create contact", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to create contact", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -718,7 +793,15 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 	contact := ExtractContact(r)
 	orgId := ExtractOrgId(r)
 
-	result := mongodb.UpdateContact(orgId, *contact)
+	result, err := mongodb.UpdateContact(orgId, *contact)
+
+	if result == nil {
+		http.Error(w, "Failed to update contact", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to update contact", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -755,7 +838,15 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 	contactId := ExtractContactId(r)
 	orgId := ExtractOrgId(r)
 
-	result := mongodb.DeleteContact(orgId, contactId)
+	result, err := mongodb.DeleteContact(orgId, contactId)
+
+	if result == nil {
+		http.Error(w, "Failed to delete contact", http.StatusInternalServerError)
+		return
+	} else if err != nil {
+		http.Error(w, "Failed to delete contact", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
@@ -790,7 +881,12 @@ func GetOrganizationPhoneNumbers(w http.ResponseWriter, r *http.Request) {
 
 	orgID := ExtractOrgId(r)
 
-	phoneNumbers := mongodb.GetPhoneNumberByOrgId(orgID)
+	phoneNumbers, err := mongodb.GetPhoneNumberByOrgId(orgID)
+
+	if err != nil {
+		http.Error(w, "Failed to get phone numbers", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(phoneNumbers)

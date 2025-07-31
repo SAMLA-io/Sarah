@@ -32,20 +32,22 @@ import (
 //
 //	contacts := GetContactByOrgId("org_1234567890abcdef")
 //	// Returns all contacts for the specified organization
-func GetContactByOrgId(orgId string) []mongodb.Contact {
+func GetContactByOrgId(orgId string) ([]mongodb.Contact, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
 	var contacts []mongodb.Contact
 	if err := cursor.All(context.Background(), &contacts); err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return contacts
+	return contacts, nil
 }
 
 // CreateContact creates a new contact in the database.
@@ -55,15 +57,25 @@ func GetContactByOrgId(orgId string) []mongodb.Contact {
 // Parameters:
 //   - orgId: The organization ID to create the contact for
 //   - contact: The contact to create
-func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult {
+func CreateContact(orgId string, contact mongodb.Contact) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
-	result, err := coll.InsertOne(context.Background(), contact)
+	result, err := coll.InsertOne(context.Background(), mongodb.Contact{
+		Name:        contact.Name,
+		Email:       contact.Email,
+		PhoneNumber: contact.PhoneNumber,
+		Company:     contact.Company,
+		Position:    contact.Position,
+		Address:     contact.Address,
+		Metadata:    contact.Metadata,
+	})
+
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }
 
 // UpdateContact updates an existing contact in the database.
@@ -73,15 +85,16 @@ func CreateContact(orgId string, contact mongodb.Contact) *mongo.InsertOneResult
 // Parameters:
 //   - orgId: The organization ID to update the contact for
 //   - contact: The contact to update
-func UpdateContact(orgId string, contact mongodb.Contact) *mongo.UpdateResult {
+func UpdateContact(orgId string, contact mongodb.Contact) (*mongo.UpdateResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
 	result, err := coll.UpdateOne(context.Background(), bson.M{"_id": contact.Id}, bson.M{"$set": contact})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }
 
 // DeleteContact deletes an existing contact from the database.
@@ -91,13 +104,14 @@ func UpdateContact(orgId string, contact mongodb.Contact) *mongo.UpdateResult {
 // Parameters:
 //   - orgId: The organization ID to delete the contact for
 //   - contactId: The object ID of the contact to delete
-func DeleteContact(orgId string, contactId string) *mongo.DeleteResult {
+func DeleteContact(orgId string, contactId string) (*mongo.DeleteResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
 	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": contactId})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }

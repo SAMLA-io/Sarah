@@ -17,39 +17,51 @@ func init() {
 	}
 }
 
-func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto) *mongo.InsertOneResult {
+func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto) (*mongo.InsertOneResult, error) {
 	assistant, err := VapiClient.Assistants.Create(context.Background(), &assistantCreateDto)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	result := mongodb.CreateAssistant(orgId, mongodbTypes.Assistant{
+	result, err := mongodb.CreateAssistant(orgId, mongodbTypes.Assistant{
 		Name:            *assistant.Name,
 		VapiAssistantId: assistant.Id,
 		Type:            "assistantCreateDto.Type",
 	})
 
-	return result
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return result, nil
 }
 
-func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssistantDto) *vapiApi.Assistant {
+func UpdateAssistant(assistantId string, assistantUpdateDto vapiApi.UpdateAssistantDto) (*vapiApi.Assistant, error) {
 	result, err := VapiClient.Assistants.Update(context.Background(), assistantId, &assistantUpdateDto)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }
 
-func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
+func DeleteAssistant(orgId string, assistantId string) (*mongo.DeleteResult, error) {
 	_, err := VapiClient.Assistants.Delete(context.Background(), assistantId)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	result := mongodb.DeleteAssistant(orgId, assistantId)
+	result, err := mongodb.DeleteAssistant(orgId, assistantId)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 
-	return result
+	return result, nil
 }
 
 func ExistsAssistant(assistantId string) bool {

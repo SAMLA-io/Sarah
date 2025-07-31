@@ -27,20 +27,22 @@ import (
 //
 // Error Handling:
 //   - Logs and terminates the application if database operations fail
-func GetCampaignByOrgId(orgId string) []mongodb.Campaign {
+func GetCampaignByOrgId(orgId string) ([]mongodb.Campaign, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
 	var campaigns []mongodb.Campaign
 	if err := cursor.All(context.Background(), &campaigns); err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return campaigns
+	return campaigns, nil
 }
 
 // CreateCampaign creates a new campaign in the database for the specified organization.
@@ -61,13 +63,13 @@ func GetCampaignByOrgId(orgId string) []mongodb.Campaign {
 //
 // Error Handling:
 //   - Logs and terminates the application if database operations fail
-func CreateCampaign(orgId string, campaign mongodb.Campaign) *mongo.InsertOneResult {
+func CreateCampaign(orgId string, campaign mongodb.Campaign) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
 
 	result, err := coll.InsertOne(context.Background(), campaign)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }

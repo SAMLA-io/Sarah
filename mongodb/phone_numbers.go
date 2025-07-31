@@ -31,18 +31,20 @@ import (
 //
 //	phoneNumbers := GetPhoneNumberByOrgId("org_1234567890abcdef")
 //	// Returns all phone numbers for the specified organization
-func GetPhoneNumberByOrgId(orgId string) []mongodb.PhoneNumber {
+func GetPhoneNumberByOrgId(orgId string) ([]mongodb.PhoneNumber, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_PHONE_NUMBERS"))
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
 	var phoneNumbers []mongodb.PhoneNumber
 	if err := cursor.All(context.Background(), &phoneNumbers); err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return phoneNumbers
+	return phoneNumbers, nil
 }

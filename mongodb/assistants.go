@@ -57,40 +57,44 @@ func init() {
 //
 //	assistants := GetOrganizationAssistants("org_1234567890abcdef")
 //	// Returns all assistants for the specified organization
-func GetOrganizationAssistants(orgId string) []mongodb.Assistant {
+func GetOrganizationAssistants(orgId string) ([]mongodb.Assistant, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_ASSISTANTS"))
 
 	cursor, err := coll.Find(context.Background(), bson.M{})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
 	var assistants []mongodb.Assistant
 	if err := cursor.All(context.Background(), &assistants); err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return assistants
+	return assistants, nil
 }
 
-func CreateAssistant(orgId string, assistant mongodb.Assistant) *mongo.InsertOneResult {
+func CreateAssistant(orgId string, assistant mongodb.Assistant) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_ASSISTANTS"))
 
 	result, err := coll.InsertOne(context.Background(), assistant)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }
 
-func DeleteAssistant(orgId string, assistantId string) *mongo.DeleteResult {
+func DeleteAssistant(orgId string, assistantId string) (*mongo.DeleteResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_ASSISTANTS"))
 
 	result, err := coll.DeleteOne(context.Background(), bson.M{"vapi_assistant_id": assistantId})
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
-	return result
+	return result, nil
 }

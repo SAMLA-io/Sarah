@@ -2,6 +2,7 @@ package sarah
 
 import (
 	"context"
+	"errors"
 	"log"
 	"sarah/mongodb"
 	mongodbTypes "sarah/types/mongodb"
@@ -24,7 +25,7 @@ func init() {
 	VapiClient = createClient(os.Getenv("VAPI_API_KEY"))
 }
 
-func CreateCall(assistantId string, assistantNumberId string, customers []mongodbTypes.Customer) *vapiApi.CallsCreateResponse {
+func CreateCall(assistantId string, assistantNumberId string, customers []mongodbTypes.Customer) (*vapiApi.CallsCreateResponse, error) {
 	customerList := []*vapiApi.CreateCustomerDto{}
 	for _, customer := range customers {
 		customerList = append(customerList, &vapiApi.CreateCustomerDto{
@@ -34,7 +35,7 @@ func CreateCall(assistantId string, assistantNumberId string, customers []mongod
 
 	if len(customerList) == 0 {
 		log.Printf("No customers/phone numbers provided")
-		return nil
+		return nil, errors.New("no customers/phone numbers provided")
 	}
 
 	resp, err := VapiClient.Calls.Create(context.Background(), &vapiApi.CreateCallDto{
@@ -45,36 +46,40 @@ func CreateCall(assistantId string, assistantNumberId string, customers []mongod
 
 	if err != nil {
 		log.Printf("Error creating call: %v", err)
-		return nil
+		return nil, err
 	}
 
 	log.Printf("Call created successfully: %+v\n", resp)
 
-	return resp
+	return resp, nil
 }
 
-func GetCall(callId string) *vapiApi.Call {
+func GetCall(callId string) (*vapiApi.Call, error) {
 	resp, err := VapiClient.Calls.Get(context.Background(), callId)
 	if err != nil {
 		log.Printf("Error getting call: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return resp
+	return resp, nil
 }
 
-func ListCalls(callListRequest *vapiApi.CallsListRequest) []*vapiApi.Call {
+func ListCalls(callListRequest *vapiApi.CallsListRequest) ([]*vapiApi.Call, error) {
 	resp, err := VapiClient.Calls.List(context.Background(), callListRequest)
 	if err != nil {
 		log.Printf("Error listing calls: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return resp
+	return resp, nil
 }
 
-func GetOrganizationCalls(orgId string) []*vapiApi.Call {
-	assistants := mongodb.GetOrganizationAssistants(orgId)
+func GetOrganizationCalls(orgId string) ([]*vapiApi.Call, error) {
+	assistants, err := mongodb.GetOrganizationAssistants(orgId)
+	if err != nil {
+		log.Printf("Error getting organization assistants: %v", err)
+		return nil, err
+	}
 
 	calls := []*vapiApi.Call{}
 	for _, assistant := range assistants {
@@ -83,10 +88,10 @@ func GetOrganizationCalls(orgId string) []*vapiApi.Call {
 		})
 		if err != nil {
 			log.Printf("Error listing calls: %v", err)
-			return nil
+			return nil, err
 		}
 		calls = append(calls, assistantCalls...)
 	}
 
-	return calls
+	return calls, nil
 }
