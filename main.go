@@ -6,6 +6,7 @@ import (
 	"sarah/api"
 	"sarah/auth"
 	"sarah/sarah"
+	"time"
 )
 
 func main() {
@@ -38,9 +39,16 @@ func main() {
 
 	http.Handle("/phone_numbers/org", auth.VerifyingMiddleware(http.HandlerFunc(api.GetOrganizationPhoneNumbers))) // GET: Get phone numbers by organization ID
 
-	// Start the server on port 8080
+	server := &http.Server{
+		Addr:         ":8080",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
+		Handler:      http.DefaultServeMux,
+	}
+
 	log.Println("Starting Sarah AI Call assistant on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(server.ListenAndServe())
 
 }
 
