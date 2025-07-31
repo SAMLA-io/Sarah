@@ -27,7 +27,7 @@ func CreateAsisstant(orgId string, assistantCreateDto vapiApi.CreateAssistantDto
 	result, err := mongodb.CreateAssistant(orgId, mongodbTypes.Assistant{
 		Name:            *assistant.Name,
 		VapiAssistantId: assistant.Id,
-		Type:            "assistantCreateDto.Type",
+		Type:            "placeholder type",
 	})
 
 	if err != nil {
