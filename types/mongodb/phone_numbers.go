@@ -7,7 +7,7 @@ import "go.mongodb.org/mongo-driver/v2/bson"
 // for outbound calls in campaigns.
 type PhoneNumber struct {
 	// Id is the unique MongoDB ObjectID for this phone number record
-	Id bson.ObjectID `json:"id" bson:"_id"`
+	Id bson.ObjectID `json:"id" bson:"_id,omitempty"`
 
 	// Name is the human-readable name for the phone number (e.g., "Main Office Line")
 	Name string `json:"name" bson:"name"`

@@ -7,7 +7,7 @@ import "go.mongodb.org/mongo-driver/v2/bson"
 // for automated calling campaigns.
 type Assistant struct {
 	// Id is the unique MongoDB ObjectID for this assistant
-	Id bson.ObjectID `json:"id" bson:"_id"`
+	Id bson.ObjectID `json:"id" bson:"_id,omitempty"`
 
 	// Name is the human-readable name for the assistant (e.g., "Insurance Reminder Assistant")
 	Name string `json:"name" bson:"name"`

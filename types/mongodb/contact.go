@@ -9,7 +9,7 @@ import (
 // that can be used in campaigns and call management.
 type Contact struct {
 	// Id is the unique MongoDB ObjectID for this contact
-	Id bson.ObjectID `json:"id" bson:"_id"`
+	Id bson.ObjectID `json:"id" bson:"_id,omitempty"`
 
 	// Name is the full name of the contact (e.g., "John Doe")
 	Name string `json:"name" bson:"name"`

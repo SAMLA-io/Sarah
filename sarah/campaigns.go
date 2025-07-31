@@ -118,8 +118,6 @@ func CheckCampaign(campaign mongodbTypes.Campaign) error {
 		fmt.Printf("[CampaignScheduler] Campaign type %s not supported\n", campaignType)
 		return fmt.Errorf("campaign type %s not supported", campaignType)
 	}
-
-	return nil
 }
 
 // Helper function to get timezone location

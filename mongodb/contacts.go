@@ -60,15 +60,7 @@ func GetContactByOrgId(orgId string) ([]mongodb.Contact, error) {
 func CreateContact(orgId string, contact mongodb.Contact) (*mongo.InsertOneResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
-	result, err := coll.InsertOne(context.Background(), mongodb.Contact{
-		Name:        contact.Name,
-		Email:       contact.Email,
-		PhoneNumber: contact.PhoneNumber,
-		Company:     contact.Company,
-		Position:    contact.Position,
-		Address:     contact.Address,
-		Metadata:    contact.Metadata,
-	})
+	result, err := coll.InsertOne(context.Background(), contact)
 
 	if err != nil {
 		log.Println(err)
