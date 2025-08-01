@@ -96,7 +96,7 @@ func (c *CampaignScheduler) run() {
 		}
 
 		log.Printf("[CampaignScheduler] --------------------------------")
-		time.Sleep(1 * time.Minute)
+		time.Sleep(5 * time.Minute)
 	}
 }
 
