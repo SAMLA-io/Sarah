@@ -357,21 +357,21 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	resp, err := executeCampaign(api.CreateCampaignDto{
-		PhoneNumberId: campaign.PhoneNumberId,
-		AssistantId:   api.String(campaign.AssistantId),
-		Customers:     customers,
-	})
+	// resp, err := executeCampaign(api.CreateCampaignDto{
+	// 	PhoneNumberId: campaign.PhoneNumberId,
+	// 	AssistantId:   api.String(campaign.AssistantId),
+	// 	Customers:     customers,
+	// })
 
-	if err != nil {
-		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
-		return err
-	}
+	// if err != nil {
+	// 	log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+	// 	return err
+	// }
 
-	if resp == nil {
-		log.Printf("[CampaignScheduler] Campaign not created, executeCampaign returned nil response")
-		return fmt.Errorf("campaign not created, executeCampaign returned nil response")
-	}
+	// if resp == nil {
+	// 	log.Printf("[CampaignScheduler] Campaign not created, executeCampaign returned nil response")
+	// 	return fmt.Errorf("campaign not created, executeCampaign returned nil response")
+	// }
 
 	res, err := mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
 		Status: mongodbTypes.STATUS_COMPLETED,
@@ -387,7 +387,7 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		return fmt.Errorf("campaign not updated, updateCampaign returned nil response")
 	}
 
-	fmt.Printf("[CampaignScheduler] Campaign executed: %+v\n", resp)
+	fmt.Printf("[CampaignScheduler] Campaign executed: %+v\n", res)
 	return nil
 }
 
