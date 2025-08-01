@@ -373,9 +373,9 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	// 	return fmt.Errorf("campaign not created, executeCampaign returned nil response")
 	// }
 
-	res, err := mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
-		Status: mongodbTypes.STATUS_COMPLETED,
-	})
+	campaign.Status = mongodbTypes.STATUS_COMPLETED
+
+	res, err := mongodb.UpdateCampaign(orgId, campaign)
 
 	if err != nil {
 		log.Printf("[CampaignScheduler] Error updating campaign: %v", err)
