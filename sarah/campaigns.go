@@ -95,7 +95,7 @@ func (c *CampaignScheduler) run() {
 
 		}
 
-		time.Sleep(1 * time.Hour)
+		time.Sleep(5 * time.Minute)
 	}
 }
 
@@ -197,7 +197,7 @@ func shouldCallCustomer(customer mongodbTypes.Customer, now time.Time, scheduleP
 			return false
 		}
 		customerTargetDate = time.Date(customer.YearNumber, time.Month(customer.MonthNumber), customer.DayNumber, 0, 0, 0, 0, loc)
-
+		log.Printf("[CampaignScheduler] Customer target date: %s", customerTargetDate)
 	default:
 		return false
 	}
