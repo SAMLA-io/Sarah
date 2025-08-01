@@ -3,13 +3,27 @@ package main
 import (
 	"log"
 	"net/http"
+	"os/exec"
 	"sarah/api"
 	"sarah/auth"
 	"sarah/sarah"
 	"time"
 )
 
+// getGitCommitHash returns the current git commit hash
+func getGitCommitHash() string {
+	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
+	output, err := cmd.Output()
+	if err != nil {
+		return "unknown"
+	}
+	return string(output[:len(output)-1]) // Remove trailing newline
+}
+
 func main() {
+
+	log.Printf("Starting Sarah AI Call assistant on port 8080... (commit: %s)", getGitCommitHash())
+
 	campaignScheduler := sarah.CampaignScheduler{}
 	campaignScheduler.Start()
 
@@ -51,7 +65,6 @@ func main() {
 		Handler:      http.DefaultServeMux,
 	}
 
-	log.Println("Starting Sarah AI Call assistant on port 8080...")
 	log.Fatal(server.ListenAndServe())
 
 }
