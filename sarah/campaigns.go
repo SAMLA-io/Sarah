@@ -197,7 +197,6 @@ func shouldCallCustomer(customer mongodbTypes.Customer, now time.Time, scheduleP
 			return false
 		}
 		customerTargetDate = time.Date(customer.YearNumber, time.Month(customer.MonthNumber), customer.DayNumber, 0, 0, 0, 0, loc)
-		log.Printf("[CampaignScheduler] Customer target date: %s", customerTargetDate)
 	default:
 		return false
 	}
@@ -365,15 +364,31 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		Customers:     customers,
 	})
 
-	if resp == nil {
-		return fmt.Errorf("campaign not created: %v", err)
+	if err != nil {
+		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+		return err
 	}
 
-	mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
+	if resp == nil {
+		log.Printf("[CampaignScheduler] Campaign not created, executeCampaign returned nil response")
+		return fmt.Errorf("campaign not created, executeCampaign returned nil response")
+	}
+
+	res, err := mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
 		Status: mongodbTypes.STATUS_COMPLETED,
 	})
 
-	fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
+	if err != nil {
+		log.Printf("[CampaignScheduler] Error updating campaign: %v", err)
+		return err
+	}
+
+	if res == nil {
+		log.Printf("[CampaignScheduler] Campaign not updated, updateCampaign returned nil response")
+		return fmt.Errorf("campaign not updated, updateCampaign returned nil response")
+	}
+
+	fmt.Printf("[CampaignScheduler] Campaign executed: %+v\n", resp)
 	return nil
 }
 
