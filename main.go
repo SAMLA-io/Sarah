@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"sarah/api"
 	"sarah/auth"
@@ -10,8 +11,22 @@ import (
 	"time"
 )
 
+// GitCommitHash will be set at build time via ldflags
+var GitCommitHash = "unknown"
+
 // getGitCommitHash returns the current git commit hash
 func getGitCommitHash() string {
+	// First try to get from build-time variable
+	if GitCommitHash != "unknown" {
+		return GitCommitHash
+	}
+
+	// Try environment variable
+	if commitHash := os.Getenv("GIT_COMMIT_HASH"); commitHash != "" {
+		return commitHash
+	}
+
+	// Fallback to git command
 	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
 	output, err := cmd.Output()
 	if err != nil {
