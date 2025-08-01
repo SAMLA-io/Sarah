@@ -1,7 +1,6 @@
 package sarah
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -95,7 +94,7 @@ func (c *CampaignScheduler) run() {
 
 		}
 
-		time.Sleep(5 * time.Minute)
+		time.Sleep(1 * time.Minute)
 	}
 }
 
@@ -395,20 +394,21 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 // Creates an immediate campaign in Vapi
 func executeCampaign(request api.CreateCampaignDto) (*api.Campaign, error) {
 
-	resp, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
-		PhoneNumberId: request.PhoneNumberId,
-		AssistantId:   request.AssistantId,
-		Customers:     request.Customers,
-		SchedulePlan: &api.SchedulePlan{
-			EarliestAt: time.Now().Add(1 * time.Minute),
-			LatestAt:   api.Time(time.Now().Add(2 * time.Minute)),
-		},
-	})
-	if err != nil {
-		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
-		return nil, err
-	}
+	// resp, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
+	// 	PhoneNumberId: request.PhoneNumberId,
+	// 	AssistantId:   request.AssistantId,
+	// 	Customers:     request.Customers,
+	// 	SchedulePlan: &api.SchedulePlan{
+	// 		EarliestAt: time.Now().Add(1 * time.Minute),
+	// 		LatestAt:   api.Time(time.Now().Add(2 * time.Minute)),
+	// 	},
+	// })
+	// if err != nil {
+	// 	log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+	// 	return nil, err
+	// }
 
-	fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
-	return resp, nil
+	// fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
+	// return resp, nil
+	return nil, nil
 }
