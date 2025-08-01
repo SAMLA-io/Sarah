@@ -1,6 +1,7 @@
 package sarah
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -75,7 +76,7 @@ func (c *CampaignScheduler) run() {
 			panic(err)
 		}
 
-		fmt.Printf("[CampaignScheduler] Retrieved %d organizations:\n", len(allOrgIDs))
+		log.Printf("[CampaignScheduler] Retrieved %d organizations", len(allOrgIDs))
 
 		for _, id := range allOrgIDs {
 			campaigns, err := mongodb.GetCampaignByOrgId(id)
@@ -83,17 +84,18 @@ func (c *CampaignScheduler) run() {
 				log.Printf("Error getting campaigns for organization %s: %v", id, err)
 				continue
 			}
-			fmt.Printf("[CampaignScheduler] Retrieved %d campaigns for organization %s:\n", len(campaigns), id)
+			log.Printf("[CampaignScheduler] Retrieved %d campaigns for organization %s", len(campaigns), id)
 
 			for _, campaign := range campaigns {
 				if campaign.Status == mongodbTypes.STATUS_ACTIVE {
-					fmt.Printf("[CampaignScheduler] Campaign: %s\n", campaign.Name)
+					log.Printf("[CampaignScheduler] Campaign: %s", campaign.Name)
 					CheckCampaign(id, campaign)
 				}
 			}
 
 		}
 
+		log.Printf("[CampaignScheduler] --------------------------------")
 		time.Sleep(1 * time.Minute)
 	}
 }
@@ -114,7 +116,7 @@ func CheckCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	case mongodbTypes.ONE_TIME:
 		return CheckOneTimeCampaign(orgId, campaign)
 	default:
-		fmt.Printf("[CampaignScheduler] Campaign type %s not supported\n", campaignType)
+		log.Printf("[CampaignScheduler] Campaign type %s not supported", campaignType)
 		return fmt.Errorf("campaign type %s not supported", campaignType)
 	}
 }
@@ -338,7 +340,7 @@ func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) error {
 }
 
 func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
-	fmt.Printf("[CampaignScheduler] Checking one-time campaign: %s\n", campaign.Name)
+	log.Printf("[CampaignScheduler] Checking one-time campaign: %s", campaign.Name)
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
@@ -357,21 +359,21 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	// resp, err := executeCampaign(api.CreateCampaignDto{
-	// 	PhoneNumberId: campaign.PhoneNumberId,
-	// 	AssistantId:   api.String(campaign.AssistantId),
-	// 	Customers:     customers,
-	// })
+	resp, err := executeCampaign(api.CreateCampaignDto{
+		PhoneNumberId: campaign.PhoneNumberId,
+		AssistantId:   api.String(campaign.AssistantId),
+		Customers:     customers,
+	})
 
-	// if err != nil {
-	// 	log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
-	// 	return err
-	// }
+	if err != nil {
+		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+		return err
+	}
 
-	// if resp == nil {
-	// 	log.Printf("[CampaignScheduler] Campaign not created, executeCampaign returned nil response")
-	// 	return fmt.Errorf("campaign not created, executeCampaign returned nil response")
-	// }
+	if resp == nil {
+		log.Printf("[CampaignScheduler] Campaign not created, executeCampaign returned nil response")
+		return fmt.Errorf("campaign not created, executeCampaign returned nil response")
+	}
 
 	campaign.Status = mongodbTypes.STATUS_COMPLETED
 
@@ -382,33 +384,32 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		return err
 	}
 
-	if res == nil {
+	if res.MatchedCount == 0 {
 		log.Printf("[CampaignScheduler] Campaign not updated, updateCampaign returned nil response")
-		return fmt.Errorf("campaign not updated, updateCampaign returned nil response")
+		return fmt.Errorf("campaign not updated, updateCampaign returned matched count 0")
 	}
 
-	fmt.Printf("[CampaignScheduler] Campaign executed: %+v\n", res)
+	log.Printf("[CampaignScheduler] Campaign executed: %+v", res)
 	return nil
 }
 
 // Creates an immediate campaign in Vapi
 func executeCampaign(request api.CreateCampaignDto) (*api.Campaign, error) {
 
-	// resp, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
-	// 	PhoneNumberId: request.PhoneNumberId,
-	// 	AssistantId:   request.AssistantId,
-	// 	Customers:     request.Customers,
-	// 	SchedulePlan: &api.SchedulePlan{
-	// 		EarliestAt: time.Now().Add(1 * time.Minute),
-	// 		LatestAt:   api.Time(time.Now().Add(2 * time.Minute)),
-	// 	},
-	// })
-	// if err != nil {
-	// 	log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
-	// 	return nil, err
-	// }
+	resp, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
+		PhoneNumberId: request.PhoneNumberId,
+		AssistantId:   request.AssistantId,
+		Customers:     request.Customers,
+		SchedulePlan: &api.SchedulePlan{
+			EarliestAt: time.Now().Add(1 * time.Minute),
+			LatestAt:   api.Time(time.Now().Add(2 * time.Minute)),
+		},
+	})
+	if err != nil {
+		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+		return nil, err
+	}
 
-	// fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
-	// return resp, nil
-	return nil, nil
+	log.Printf("[CampaignScheduler] Campaign created: %+v", resp)
+	return resp, nil
 }
