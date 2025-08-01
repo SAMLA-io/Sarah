@@ -89,7 +89,7 @@ func (c *CampaignScheduler) run() {
 			for _, campaign := range campaigns {
 				if campaign.Status == mongodbTypes.STATUS_ACTIVE {
 					fmt.Printf("[CampaignScheduler] Campaign: %s\n", campaign.Name)
-					CheckCampaign(campaign)
+					CheckCampaign(id, campaign)
 				}
 			}
 
@@ -102,7 +102,7 @@ func (c *CampaignScheduler) run() {
 // check if the campaign is time to send the call
 // if it is, create the one-time campaign in Vapi with the phone nombers
 // from the mongodb campaign
-func CheckCampaign(campaign mongodbTypes.Campaign) error {
+func CheckCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	campaignType := campaign.Type
 
 	switch campaignType {
@@ -113,7 +113,7 @@ func CheckCampaign(campaign mongodbTypes.Campaign) error {
 	case mongodbTypes.RECURRENT_YEARLY:
 		return CheckRecurrentYearlyCampaign(campaign)
 	case mongodbTypes.ONE_TIME:
-		return CheckOneTimeCampaign(campaign)
+		return CheckOneTimeCampaign(orgId, campaign)
 	default:
 		fmt.Printf("[CampaignScheduler] Campaign type %s not supported\n", campaignType)
 		return fmt.Errorf("campaign type %s not supported", campaignType)
@@ -339,7 +339,7 @@ func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) error {
 	return nil
 }
 
-func CheckOneTimeCampaign(campaign mongodbTypes.Campaign) error {
+func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	fmt.Printf("[CampaignScheduler] Checking one-time campaign: %s\n", campaign.Name)
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
@@ -363,6 +363,10 @@ func CheckOneTimeCampaign(campaign mongodbTypes.Campaign) error {
 		PhoneNumberId: campaign.PhoneNumberId,
 		AssistantId:   api.String(campaign.AssistantId),
 		Customers:     customers,
+	})
+
+	mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
+		Status: mongodbTypes.STATUS_COMPLETED,
 	})
 
 	if resp == nil {
