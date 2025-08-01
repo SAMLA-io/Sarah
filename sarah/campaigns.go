@@ -365,13 +365,13 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		Customers:     customers,
 	})
 
-	mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
-		Status: mongodbTypes.STATUS_COMPLETED,
-	})
-
 	if resp == nil {
 		return fmt.Errorf("campaign not created: %v", err)
 	}
+
+	mongodb.UpdateCampaign(orgId, mongodbTypes.Campaign{
+		Status: mongodbTypes.STATUS_COMPLETED,
+	})
 
 	fmt.Printf("[CampaignScheduler] Campaign created: %+v\n", resp)
 	return nil
