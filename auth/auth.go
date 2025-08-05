@@ -24,28 +24,42 @@ func GetOrganizationID(r *http.Request) (string, bool) {
 
 // VerifyingMiddleware is the general middleware that verifies the passed JWT Token from clerk and extracts the user ID and organization ID to pass it to the next handler
 func VerifyingMiddleware(next http.Handler) http.Handler {
+	log.Printf("[AUTH] VerifyingMiddleware")
 	return clerkhttp.RequireHeaderAuthorization()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[API] Request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
+		log.Printf("[AUTH] Request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
 		startTime := time.Now()
+
+		// Log authorization header presence (without revealing the token)
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			log.Printf("[AUTH] ERROR: Missing authorization header for %s %s", r.Method, r.URL.Path)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		log.Printf("[AUTH] Authorization header present for %s %s", r.Method, r.URL.Path)
 
 		userID, err := extractUserIDFromAuthHeader(r)
 		if err != nil {
+			log.Printf("[AUTH] ERROR: Failed to extract user ID for %s %s: %v", r.Method, r.URL.Path, err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		log.Printf("[AUTH] Successfully extracted user ID: %s for %s %s", userID, r.Method, r.URL.Path)
 
 		organizationID, err := clerk.GetUserOrganizationId(userID)
 		if err != nil {
+			log.Printf("[AUTH] ERROR: Failed to get organization ID for user %s on %s %s: %v", userID, r.Method, r.URL.Path, err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		log.Printf("[AUTH] Successfully retrieved organization ID: %s for user %s on %s %s", organizationID, userID, r.Method, r.URL.Path)
 
 		// Add user ID to request context
 		ctx := context.WithValue(r.Context(), OrganizationIDKey{}, organizationID)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
-		log.Printf("[API] Response: %s %s -> STATUS: %d completed in %v", r.Method, r.URL.Path, http.StatusOK, time.Since(startTime))
+		log.Printf("[AUTH] Response: %s %s -> STATUS: %d completed in %v (User: %s, Org: %s)", r.Method, r.URL.Path, http.StatusOK, time.Since(startTime), userID, organizationID)
 	}))
 }
 
