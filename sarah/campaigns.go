@@ -1,7 +1,6 @@
 package sarah
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -233,13 +232,11 @@ func CheckRecurrentWeeklyCampaign(campaign mongodbTypes.Campaign) error {
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
-	customers := []*api.CreateCustomerDto{}
+	customers := []mongodbTypes.Customer{}
 
 	for _, customer := range campaign.Customers {
 		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_WEEKLY, campaign.TimeZone) {
-			customers = append(customers, &api.CreateCustomerDto{
-				Number: api.String(customer.PhoneNumber),
-			})
+			customers = append(customers, customer)
 		}
 	}
 
@@ -247,11 +244,7 @@ func CheckRecurrentWeeklyCampaign(campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	resp, err := executeCampaign(api.CreateCampaignDto{
-		PhoneNumberId: campaign.PhoneNumberId,
-		AssistantId:   api.String(campaign.AssistantId),
-		Customers:     customers,
-	})
+	resp, err := executeCampaign(campaign.AssistantId, campaign.PhoneNumberId, customers)
 
 	if err != nil {
 		log.Printf("Error creating campaign: %v", err)
@@ -270,13 +263,11 @@ func CheckRecurrentMonthlyCampaign(campaign mongodbTypes.Campaign) error {
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
-	customers := []*api.CreateCustomerDto{}
+	customers := []mongodbTypes.Customer{}
 
 	for _, customer := range campaign.Customers {
 		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_MONTHLY, campaign.TimeZone) {
-			customers = append(customers, &api.CreateCustomerDto{
-				Number: api.String(customer.PhoneNumber),
-			})
+			customers = append(customers, customer)
 		}
 	}
 
@@ -284,11 +275,7 @@ func CheckRecurrentMonthlyCampaign(campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	resp, err := executeCampaign(api.CreateCampaignDto{
-		PhoneNumberId: campaign.PhoneNumberId,
-		AssistantId:   api.String(campaign.AssistantId),
-		Customers:     customers,
-	})
+	resp, err := executeCampaign(campaign.AssistantId, campaign.PhoneNumberId, customers)
 
 	if err != nil {
 		log.Printf("Error creating campaign: %v", err)
@@ -307,13 +294,11 @@ func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) error {
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
-	customers := []*api.CreateCustomerDto{}
+	customers := []mongodbTypes.Customer{}
 
 	for _, customer := range campaign.Customers {
 		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_YEARLY, campaign.TimeZone) {
-			customers = append(customers, &api.CreateCustomerDto{
-				Number: api.String(customer.PhoneNumber),
-			})
+			customers = append(customers, customer)
 		}
 	}
 
@@ -321,11 +306,7 @@ func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	resp, err := executeCampaign(api.CreateCampaignDto{
-		PhoneNumberId: campaign.PhoneNumberId,
-		AssistantId:   api.String(campaign.AssistantId),
-		Customers:     customers,
-	})
+	resp, err := executeCampaign(campaign.AssistantId, campaign.PhoneNumberId, customers)
 
 	if err != nil {
 		log.Printf("Error creating campaign: %v", err)
@@ -345,13 +326,11 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
-	customers := []*api.CreateCustomerDto{}
+	customers := []mongodbTypes.Customer{}
 
 	for _, customer := range campaign.Customers {
 		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.ONE_TIME, campaign.TimeZone) {
-			customers = append(customers, &api.CreateCustomerDto{
-				Number: api.String(customer.PhoneNumber),
-			})
+			customers = append(customers, customer)
 		}
 	}
 
@@ -359,11 +338,7 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 		return nil
 	}
 
-	resp, err := executeCampaign(api.CreateCampaignDto{
-		PhoneNumberId: campaign.PhoneNumberId,
-		AssistantId:   api.String(campaign.AssistantId),
-		Customers:     customers,
-	})
+	resp, err := executeCampaign(campaign.AssistantId, campaign.PhoneNumberId, customers)
 
 	if err != nil {
 		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
@@ -394,19 +369,11 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 }
 
 // Creates an immediate campaign in Vapi
-func executeCampaign(request api.CreateCampaignDto) (*api.Campaign, error) {
+func executeCampaign(assistantId string, phoneNumberId string, customers []mongodbTypes.Customer) (*api.CallsCreateResponse, error) {
+	resp, err := CreateCall(assistantId, phoneNumberId, customers)
 
-	resp, err := VapiClient.Campaigns.CampaignControllerCreate(context.Background(), &api.CreateCampaignDto{
-		PhoneNumberId: request.PhoneNumberId,
-		AssistantId:   request.AssistantId,
-		Customers:     request.Customers,
-		SchedulePlan: &api.SchedulePlan{
-			EarliestAt: time.Now().Add(1 * time.Minute),
-			LatestAt:   api.Time(time.Now().Add(2 * time.Minute)),
-		},
-	})
 	if err != nil {
-		log.Printf("[CampaignScheduler] Error creating campaign: %v", err)
+		log.Printf("[CampaignScheduler] Error creating call: %v", err)
 		return nil, err
 	}
 
