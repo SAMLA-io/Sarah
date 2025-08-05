@@ -24,7 +24,6 @@ func GetOrganizationID(r *http.Request) (string, bool) {
 
 // VerifyingMiddleware is the general middleware that verifies the passed JWT Token from clerk and extracts the user ID and organization ID to pass it to the next handler
 func VerifyingMiddleware(next http.Handler) http.Handler {
-	log.Printf("[AUTH] VerifyingMiddleware")
 	return clerkhttp.RequireHeaderAuthorization()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[AUTH] Request: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
 		startTime := time.Now()
