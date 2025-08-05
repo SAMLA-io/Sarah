@@ -99,7 +99,13 @@ func UpdateContact(orgId string, contact mongodb.Contact) (*mongo.UpdateResult, 
 func DeleteContact(orgId string, contactId string) (*mongo.DeleteResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CONTACTS"))
 
-	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": contactId})
+	objectId, err := bson.ObjectIDFromHex(contactId)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": objectId})
 	if err != nil {
 		log.Println(err)
 		return nil, err

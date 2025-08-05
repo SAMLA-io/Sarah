@@ -107,7 +107,13 @@ func UpdateCampaign(orgId string, campaign mongodb.Campaign) (*mongo.UpdateResul
 func DeleteCampaign(orgId string, campaignId string) (*mongo.DeleteResult, error) {
 	coll := Client.Database(orgId).Collection(os.Getenv("MONGO_COLLECTION_CAMPAIGNS"))
 
-	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": campaignId})
+	objectId, err := bson.ObjectIDFromHex(campaignId)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	result, err := coll.DeleteOne(context.Background(), bson.M{"_id": objectId})
 	if err != nil {
 		return nil, err
 	}
