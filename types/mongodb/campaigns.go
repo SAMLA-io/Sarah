@@ -64,6 +64,8 @@ type SchedulePlan struct {
 
 // Customer represents an individual customer in a campaign with their contact information
 // and scheduling preferences. Each customer can have different scheduling rules.
+// They differ from contacts in that they are used to identify customers in campaigns and calls.
+// While contacts are used to store contact information, customers are used to identify customers in campaigns and calls.
 type Customer struct {
 	// PhoneNumber is the customer's contact phone number in E.164 format (e.g., "+1234567890")
 	PhoneNumber string `json:"phone_number" bson:"phone_number"`
