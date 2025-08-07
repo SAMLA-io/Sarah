@@ -29,6 +29,9 @@ type Contact struct {
 	// Address is the contact's physical address
 	Address string `json:"address" bson:"address"`
 
+	// Customer is the customer object that this contact belongs to
+	Customer Customer `json:"customer" bson:"customer"`
+
 	// Metadata is a flexible field for storing additional contact information
 	// This can include custom fields, preferences, or any other relevant data
 	Metadata map[string]interface{} `json:"metadata" bson:"metadata"`

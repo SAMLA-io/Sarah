@@ -28,6 +28,9 @@ type Campaign struct {
 	// SchedulePlan defines when and how often the campaign should run
 	SchedulePlan *SchedulePlan `json:"schedule_plan" bson:"schedule_plan"`
 
+	// DynamicCustomers indicates if the campaign should use dynamic customers
+	DynamicCustomers bool `json:"dynamic_customers" bson:"dynamic_customers"`
+
 	// Customers is the list of customers to contact in this campaign
 	Customers []Customer `json:"customers" bson:"customers"`
 

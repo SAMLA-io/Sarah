@@ -26,16 +26,17 @@ func init() {
 
 func CreateCampaign(campaignCreateDto mongodbTypes.Campaign, orgId string) (*mongo.InsertOneResult, error) {
 	campaign, err := mongodb.CreateCampaign(orgId, mongodbTypes.Campaign{
-		Name:          campaignCreateDto.Name,
-		AssistantId:   campaignCreateDto.AssistantId,
-		PhoneNumberId: campaignCreateDto.PhoneNumberId,
-		SchedulePlan:  campaignCreateDto.SchedulePlan,
-		Customers:     campaignCreateDto.Customers,
-		Type:          campaignCreateDto.Type,
-		Status:        campaignCreateDto.Status,
-		StartDate:     campaignCreateDto.StartDate,
-		EndDate:       campaignCreateDto.EndDate,
-		TimeZone:      campaignCreateDto.TimeZone,
+		Name:             campaignCreateDto.Name,
+		AssistantId:      campaignCreateDto.AssistantId,
+		PhoneNumberId:    campaignCreateDto.PhoneNumberId,
+		SchedulePlan:     campaignCreateDto.SchedulePlan,
+		Customers:        campaignCreateDto.Customers,
+		Type:             campaignCreateDto.Type,
+		Status:           campaignCreateDto.Status,
+		StartDate:        campaignCreateDto.StartDate,
+		EndDate:          campaignCreateDto.EndDate,
+		TimeZone:         campaignCreateDto.TimeZone,
+		DynamicCustomers: campaignCreateDto.DynamicCustomers,
 	})
 
 	if campaign == nil {
@@ -107,11 +108,11 @@ func CheckCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 
 	switch campaignType {
 	case mongodbTypes.RECURRENT_WEEKLY:
-		return CheckRecurrentWeeklyCampaign(campaign)
+		return CheckRecurrentWeeklyCampaign(orgId, campaign)
 	case mongodbTypes.RECURRENT_MONTHLY:
-		return CheckRecurrentMonthlyCampaign(campaign)
+		return CheckRecurrentMonthlyCampaign(orgId, campaign)
 	case mongodbTypes.RECURRENT_YEARLY:
-		return CheckRecurrentYearlyCampaign(campaign)
+		return CheckRecurrentYearlyCampaign(orgId, campaign)
 	case mongodbTypes.ONE_TIME:
 		return CheckOneTimeCampaign(orgId, campaign)
 	default:
@@ -227,16 +228,30 @@ func shouldCallCustomer(customer mongodbTypes.Customer, now time.Time, scheduleP
 	return false
 }
 
-func CheckRecurrentWeeklyCampaign(campaign mongodbTypes.Campaign) error {
+func CheckRecurrentWeeklyCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
 	customers := []mongodbTypes.Customer{}
 
-	for _, customer := range campaign.Customers {
-		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_WEEKLY, campaign.TimeZone) {
-			customers = append(customers, customer)
+	if campaign.DynamicCustomers {
+		allCustomers, err := getDynamicCustomers(orgId)
+		if err != nil {
+			log.Printf("[CampaignScheduler] Error getting dynamic customers: %v", err)
+			return err
+		}
+
+		for _, customer := range allCustomers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_WEEKLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
+		}
+	} else {
+		for _, customer := range campaign.Customers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_WEEKLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
 		}
 	}
 
@@ -258,16 +273,30 @@ func CheckRecurrentWeeklyCampaign(campaign mongodbTypes.Campaign) error {
 	return nil
 }
 
-func CheckRecurrentMonthlyCampaign(campaign mongodbTypes.Campaign) error {
+func CheckRecurrentMonthlyCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
 	customers := []mongodbTypes.Customer{}
 
-	for _, customer := range campaign.Customers {
-		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_MONTHLY, campaign.TimeZone) {
-			customers = append(customers, customer)
+	if campaign.DynamicCustomers {
+		allCustomers, err := getDynamicCustomers(orgId)
+		if err != nil {
+			log.Printf("[CampaignScheduler] Error getting dynamic customers: %v", err)
+			return err
+		}
+
+		for _, customer := range allCustomers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_MONTHLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
+		}
+	} else {
+		for _, customer := range campaign.Customers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_MONTHLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
 		}
 	}
 
@@ -289,16 +318,30 @@ func CheckRecurrentMonthlyCampaign(campaign mongodbTypes.Campaign) error {
 	return nil
 }
 
-func CheckRecurrentYearlyCampaign(campaign mongodbTypes.Campaign) error {
+func CheckRecurrentYearlyCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 	now := time.Now()
 	loc := getTimezoneLocation(campaign.TimeZone)
 	now = now.In(loc)
 
 	customers := []mongodbTypes.Customer{}
 
-	for _, customer := range campaign.Customers {
-		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_YEARLY, campaign.TimeZone) {
-			customers = append(customers, customer)
+	if campaign.DynamicCustomers {
+		allCustomers, err := getDynamicCustomers(orgId)
+		if err != nil {
+			log.Printf("[CampaignScheduler] Error getting dynamic customers: %v", err)
+			return err
+		}
+
+		for _, customer := range allCustomers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_YEARLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
+		}
+	} else {
+		for _, customer := range campaign.Customers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.RECURRENT_YEARLY, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
 		}
 	}
 
@@ -328,9 +371,23 @@ func CheckOneTimeCampaign(orgId string, campaign mongodbTypes.Campaign) error {
 
 	customers := []mongodbTypes.Customer{}
 
-	for _, customer := range campaign.Customers {
-		if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.ONE_TIME, campaign.TimeZone) {
-			customers = append(customers, customer)
+	if campaign.DynamicCustomers {
+		allCustomers, err := getDynamicCustomers(orgId)
+		if err != nil {
+			log.Printf("[CampaignScheduler] Error getting dynamic customers: %v", err)
+			return err
+		}
+
+		for _, customer := range allCustomers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.ONE_TIME, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
+		}
+	} else {
+		for _, customer := range campaign.Customers {
+			if shouldCallCustomer(customer, now, campaign.SchedulePlan, mongodbTypes.ONE_TIME, campaign.TimeZone) {
+				customers = append(customers, customer)
+			}
 		}
 	}
 
@@ -379,4 +436,22 @@ func executeCampaign(assistantId string, phoneNumberId string, customers []mongo
 
 	log.Printf("[CampaignScheduler] Campaign created: %+v", resp)
 	return resp, nil
+}
+
+func getDynamicCustomers(orgId string) ([]mongodbTypes.Customer, error) {
+	contacts, err := mongodb.GetContactByOrgId(orgId)
+	if err != nil {
+		log.Printf("[CampaignScheduler] Error getting contacts: %v", err)
+		return nil, err
+	}
+
+	customers := []mongodbTypes.Customer{}
+
+	for _, contact := range contacts {
+		customers = append(customers, mongodbTypes.Customer{
+			PhoneNumber: contact.PhoneNumber,
+		})
+	}
+
+	return customers, nil
 }
