@@ -4,9 +4,9 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
-// Contact represents a customer contact in the database.
-// This structure stores comprehensive information about customers
-// that can be used in campaigns and call management.
+// Contact represents a generic contact in the database.
+// This structure stores comprehensive information about contacts
+// It links a contact to a customer object that can be used in campaigns and call management.
 type Contact struct {
 	// Id is the unique MongoDB ObjectID for this contact
 	Id bson.ObjectID `json:"id" bson:"_id,omitempty"`
@@ -28,6 +28,9 @@ type Contact struct {
 
 	// Address is the contact's physical address
 	Address string `json:"address" bson:"address"`
+
+	// Customer is the customer object that this contact belongs to
+	Customer Customer `json:"customer" bson:"customer"`
 
 	// Metadata is a flexible field for storing additional contact information
 	// This can include custom fields, preferences, or any other relevant data
