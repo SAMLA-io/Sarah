@@ -82,14 +82,16 @@ func (c *CampaignScheduler) run() {
 			campaigns, err := mongodb.GetCampaignByOrgId(id)
 			if err != nil {
 				log.Printf("Error getting campaigns for organization %s: %v", id, err)
-				continue
 			}
 			log.Printf("[CampaignScheduler] Retrieved %d campaigns for organization %s", len(campaigns), id)
 
 			for _, campaign := range campaigns {
 				if campaign.Status == mongodbTypes.STATUS_ACTIVE {
 					log.Printf("[CampaignScheduler] Campaign: %s", campaign.Name)
-					CheckCampaign(id, campaign)
+					err := CheckCampaign(id, campaign)
+					if err != nil {
+						log.Printf("[CampaignScheduler] Error checking campaign: %v", err)
+					}
 				}
 			}
 
