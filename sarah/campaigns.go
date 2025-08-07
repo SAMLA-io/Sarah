@@ -450,12 +450,7 @@ func getDynamicCustomers(orgId string) ([]mongodbTypes.Customer, error) {
 	customers := []mongodbTypes.Customer{}
 
 	for _, contact := range contacts {
-		customers = append(customers, mongodbTypes.Customer{
-			PhoneNumber: contact.PhoneNumber,
-			DayNumber:   contact.DayNumber,
-			MonthNumber: contact.MonthNumber,
-			// Add other relevant fields as needed
-		})
+		customers = append(customers, contact.Customer)
 	}
 
 	return customers, nil
