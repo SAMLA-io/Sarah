@@ -125,7 +125,7 @@ func GetCall(w http.ResponseWriter, r *http.Request) {
 // ListCalls handles GET requests to list calls based on specified criteria.
 // This endpoint retrieves a list of calls from VapiAI using optional filtering parameters.
 //
-// HTTP Method: GET
+// HTTP Method: POST
 // Endpoint: /calls/list
 //
 // Request Body (optional):
@@ -155,7 +155,7 @@ func GetCall(w http.ResponseWriter, r *http.Request) {
 //	  }
 //	]
 func ListCalls(w http.ResponseWriter, r *http.Request) {
-	if !VerifyMethod(r, []string{"GET"}) {
+	if !VerifyMethod(r, []string{"POST"}) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}

@@ -302,7 +302,7 @@ Retrieve a specific call by ID.
 }
 ```
 
-#### GET /calls/list
+#### POST /calls/list
 List calls based on criteria.
 
 **Headers:**
