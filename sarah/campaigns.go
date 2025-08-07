@@ -92,7 +92,6 @@ func (c *CampaignScheduler) run() {
 					err := CheckCampaign(id, campaign)
 					if err != nil {
 						log.Printf("[CampaignScheduler] Error checking campaign: %v", err)
-						continue
 					}
 				}
 			}
