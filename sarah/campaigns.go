@@ -82,6 +82,7 @@ func (c *CampaignScheduler) run() {
 			campaigns, err := mongodb.GetCampaignByOrgId(id)
 			if err != nil {
 				log.Printf("Error getting campaigns for organization %s: %v", id, err)
+				continue
 			}
 			log.Printf("[CampaignScheduler] Retrieved %d campaigns for organization %s", len(campaigns), id)
 
@@ -91,6 +92,7 @@ func (c *CampaignScheduler) run() {
 					err := CheckCampaign(id, campaign)
 					if err != nil {
 						log.Printf("[CampaignScheduler] Error checking campaign: %v", err)
+						continue
 					}
 				}
 			}
