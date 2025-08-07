@@ -53,7 +53,7 @@ func VerifyingMiddleware(next http.Handler) http.Handler {
 		}
 		log.Printf("[AUTH] Successfully retrieved organization ID: %s for user %s on %s %s", organizationID, userID, r.Method, r.URL.Path)
 
-		// Add user ID to request context
+		// Add organization ID to request context
 		ctx := context.WithValue(r.Context(), OrganizationIDKey{}, organizationID)
 		r = r.WithContext(ctx)
 
