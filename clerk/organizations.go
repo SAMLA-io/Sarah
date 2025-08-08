@@ -3,6 +3,7 @@ package clerk
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"os"
 
@@ -64,6 +65,9 @@ func GetUserOrganizationId(userId string) (string, error) {
 	orgMemberships, err := GetUserOrganizations(userId)
 	if err != nil {
 		return "", err
+	}
+	if len(orgMemberships.OrganizationMemberships) == 0 {
+		return "", errors.New("no organization memberships found")
 	}
 	return orgMemberships.OrganizationMemberships[0].Organization.ID, nil
 }
