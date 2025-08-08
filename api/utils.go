@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"reflect"
 	"sarah/auth"
 	mongodbTypes "sarah/types/mongodb"
 	"strings"
@@ -319,12 +320,23 @@ func ExtractAssistantCreateDto(r *http.Request) *vapiApi.CreateAssistantDto {
 		return nil
 	}
 
+	// Check if body is empty
+	if len(body) == 0 {
+		return nil
+	}
+
 	var requestBody struct {
 		AssistantCreateRequest vapiApi.CreateAssistantDto `json:"assistantCreateRequest"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
+		return nil
+	}
+
+	// Check if the assistantCreateRequest field is empty using reflect.DeepEqual
+	emptyDto := vapiApi.CreateAssistantDto{}
+	if reflect.DeepEqual(requestBody.AssistantCreateRequest, emptyDto) {
 		return nil
 	}
 
@@ -337,12 +349,23 @@ func ExtractAssistantUpdateDto(r *http.Request) *vapiApi.UpdateAssistantDto {
 		return nil
 	}
 
+	// Check if body is empty
+	if len(body) == 0 {
+		return nil
+	}
+
 	var requestBody struct {
 		AssistantUpdateRequest vapiApi.UpdateAssistantDto `json:"assistantUpdateRequest"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
+		return nil
+	}
+
+	// Check if the assistantUpdateRequest field is empty using reflect.DeepEqual
+	emptyDto := vapiApi.UpdateAssistantDto{}
+	if reflect.DeepEqual(requestBody.AssistantUpdateRequest, emptyDto) {
 		return nil
 	}
 
@@ -355,12 +378,23 @@ func ExtractAssistant(r *http.Request) *mongodbTypes.Assistant {
 		return nil
 	}
 
+	// Check if body is empty
+	if len(body) == 0 {
+		return nil
+	}
+
 	var requestBody struct {
 		Assistant mongodbTypes.Assistant `json:"assistant"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
+		return nil
+	}
+
+	// Check if the assistant field is empty using reflect.DeepEqual
+	emptyAssistant := mongodbTypes.Assistant{}
+	if reflect.DeepEqual(requestBody.Assistant, emptyAssistant) {
 		return nil
 	}
 
@@ -373,12 +407,23 @@ func ExtractContact(r *http.Request) *mongodbTypes.Contact {
 		return nil
 	}
 
+	// Check if body is empty
+	if len(body) == 0 {
+		return nil
+	}
+
 	var requestBody struct {
 		Contact mongodbTypes.Contact `json:"contact"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
+		return nil
+	}
+
+	// Check if the contact field is empty using reflect.DeepEqual
+	emptyContact := mongodbTypes.Contact{}
+	if reflect.DeepEqual(requestBody.Contact, emptyContact) {
 		return nil
 	}
 
@@ -396,12 +441,23 @@ func ExtractPhoneNumber(r *http.Request) *mongodbTypes.PhoneNumber {
 		return nil
 	}
 
+	// Check if body is empty
+	if len(body) == 0 {
+		return nil
+	}
+
 	var requestBody struct {
 		PhoneNumber mongodbTypes.PhoneNumber `json:"phoneNumber"`
 	}
 
 	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
+		return nil
+	}
+
+	// Check if the phoneNumber field is empty using reflect.DeepEqual
+	emptyPhoneNumber := mongodbTypes.PhoneNumber{}
+	if reflect.DeepEqual(requestBody.PhoneNumber, emptyPhoneNumber) {
 		return nil
 	}
 
