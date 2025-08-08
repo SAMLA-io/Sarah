@@ -335,18 +335,27 @@ func CreateAssistant(w http.ResponseWriter, r *http.Request) {
 	assistantCreateDto := ExtractAssistantCreateDto(r)
 	orgId := ExtractOrgId(r)
 
+	if assistantCreateDto == nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
 	result, err := sarah.CreateAsisstant(orgId, *assistantCreateDto)
 
-	if result == nil {
+	if err != nil {
 		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
 		return
-	} else if err != nil {
+	}
+
+	if result == nil {
 		http.Error(w, "Failed to create assistant", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
 // RegisterAssistant handles POST requests to register an already existing assistant.
@@ -372,6 +381,8 @@ func RegisterAssistant(w http.ResponseWriter, r *http.Request) {
 
 	assistant := ExtractAssistant(r)
 	orgId := ExtractOrgId(r)
+
+	log.Printf("RegisterAssistant: Checking existence of assistant with ID: %s", assistant.VapiAssistantId)
 
 	if !sarah.ExistsAssistant(assistant.VapiAssistantId) {
 		http.Error(w, "Assistant does not exist in VapiAI", http.StatusBadRequest)
