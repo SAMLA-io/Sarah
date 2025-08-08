@@ -382,6 +382,11 @@ func RegisterAssistant(w http.ResponseWriter, r *http.Request) {
 	assistant := ExtractAssistant(r)
 	orgId := ExtractOrgId(r)
 
+	if assistant == nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
 	log.Printf("RegisterAssistant: Checking existence of assistant with ID: %s", assistant.VapiAssistantId)
 
 	if !sarah.ExistsAssistant(assistant.VapiAssistantId) {
