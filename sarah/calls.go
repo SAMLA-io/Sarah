@@ -7,8 +7,6 @@ import (
 	"sarah/mongodb"
 	mongodbTypes "sarah/types/mongodb"
 
-	"os"
-
 	vapiApi "github.com/VapiAI/server-sdk-go"
 
 	vapiclient "github.com/VapiAI/server-sdk-go/client"
@@ -22,10 +20,13 @@ func init() {
 		log.Printf("Warning: .env file not found, using system environment variables")
 	}
 
-	VapiClient = createClient(os.Getenv("VAPI_API_KEY"))
 }
 
 func CreateCall(assistantId string, assistantNumberId string, customers []mongodbTypes.Customer) (*vapiApi.CallsCreateResponse, error) {
+	if err := ensureVapiClient(); err != nil {
+		return nil, err
+	}
+
 	customerList := []*vapiApi.CreateCustomerDto{}
 	for _, customer := range customers {
 		customerList = append(customerList, &vapiApi.CreateCustomerDto{
@@ -55,6 +56,10 @@ func CreateCall(assistantId string, assistantNumberId string, customers []mongod
 }
 
 func GetCall(callId string) (*vapiApi.Call, error) {
+	if err := ensureVapiClient(); err != nil {
+		return nil, err
+	}
+
 	resp, err := VapiClient.Calls.Get(context.Background(), callId)
 	if err != nil {
 		log.Printf("Error getting call: %v", err)
@@ -65,6 +70,10 @@ func GetCall(callId string) (*vapiApi.Call, error) {
 }
 
 func ListCalls(callListRequest *vapiApi.CallsListRequest) ([]*vapiApi.Call, error) {
+	if err := ensureVapiClient(); err != nil {
+		return nil, err
+	}
+
 	resp, err := VapiClient.Calls.List(context.Background(), callListRequest)
 	if err != nil {
 		log.Printf("Error listing calls: %v", err)
@@ -75,6 +84,10 @@ func ListCalls(callListRequest *vapiApi.CallsListRequest) ([]*vapiApi.Call, erro
 }
 
 func GetOrganizationCalls(orgId string) ([]*vapiApi.Call, error) {
+	if err := ensureVapiClient(); err != nil {
+		return nil, err
+	}
+
 	assistants, err := mongodb.GetOrganizationAssistants(orgId)
 	if err != nil {
 		log.Printf("Error getting organization assistants: %v", err)
